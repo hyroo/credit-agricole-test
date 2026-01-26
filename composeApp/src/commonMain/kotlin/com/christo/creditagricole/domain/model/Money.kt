@@ -1,0 +1,26 @@
+package com.christo.creditagricole.domain.model
+
+import kotlin.math.abs
+
+data class Money(
+    val amountInMinor: Long,
+    val currencyCode: String
+    // amount stored in minor units (e.g. cents) to avoid floating point issues
+) {
+    init {
+        require(currencyCode.length == 3 && currencyCode.all { it.isLetter() }) {
+            "Currency code must follow the ISO-4217 alpha-3 format."
+        }
+        require(currencyCode == currencyCode.uppercase()) {
+            "Currency code must use upper-case letters."
+        }
+    }
+
+    val isPositive: Boolean get() = amountInMinor > 0
+    val isNegative: Boolean get() = amountInMinor < 0
+    val isZero: Boolean get() = amountInMinor == 0L
+
+    fun negate(): Money = copy(amountInMinor = -amountInMinor)
+
+    fun absolute(): Money = copy(amountInMinor = abs(amountInMinor))
+}
