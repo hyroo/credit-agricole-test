@@ -6,6 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.christo.creditagricole.designsystem.theme.ColorScheme
+import com.christo.creditagricole.designsystem.theme.Theme
+import com.christo.creditagricole.presentation.features.accounts.AccountsMock
+import com.christo.creditagricole.presentation.features.accounts.AccountsRoute
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,8 +22,13 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
-fun AppAndroidPreview() {
-    App()
+fun AccountsScreenPreview() {
+    Theme(colors = ColorScheme.Light) {
+        AccountsRoute(
+            state = AccountsMock.defaultState,
+            onIntent = {}
+        )
+    }
 }

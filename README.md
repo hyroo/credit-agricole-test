@@ -4,6 +4,12 @@
 
 ## **TODO**
 
+### 🚀 Fonctionnalités
+- [ ] Implémenter l'architecture MVI / Clean Architecture
+- [ ] Ajouter les libraries
+- [ ] Implémenter les fonctionnalités principales
+- [ ] Gérer les cas d’erreur
+
 ---
 
 ## **Features**
