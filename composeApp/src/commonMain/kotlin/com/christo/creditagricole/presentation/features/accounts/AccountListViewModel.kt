@@ -8,6 +8,7 @@ import com.christo.creditagricole.domain.model.BankId
 import com.christo.creditagricole.domain.usecase.GetAccountsForBankUseCase
 import com.christo.creditagricole.domain.usecase.GetBanksUseCase
 import com.christo.creditagricole.domain.usecase.GetMockBanksUseCase
+import kotlinx.coroutines.CancellationException
 
 class AccountListViewModel(
     dispatcherProvider: DispatcherProvider,
@@ -81,11 +82,9 @@ class AccountListViewModel(
             .getOrElse { emptyList() }
 
         if (fallbackSections.isNotEmpty() && currentSections.isEmpty()) {
-            dispatch(
-                AccountListIntent.InternalBanksLoaded(
-                    sections = fallbackSections,
-                    markLoaded = true
-                )
+            handleSectionsLoaded(
+                sections = fallbackSections,
+                markLoaded = true
             )
         }
 
@@ -108,21 +107,17 @@ class AccountListViewModel(
                         dispatch(AccountListIntent.InternalError("Aucune banque disponible."))
                     }
                 } else {
-                    dispatch(
-                        AccountListIntent.InternalBanksLoaded(
-                            sections = filteredSections,
-                            markLoaded = true
-                        )
+                    handleSectionsLoaded(
+                        sections = filteredSections,
+                        markLoaded = true
                     )
                 }
             }
             .onFailure { throwable ->
                 if (fallbackSections.isNotEmpty()) {
-                    dispatch(
-                        AccountListIntent.InternalBanksLoaded(
-                            sections = fallbackSections,
-                            markLoaded = true
-                        )
+                    handleSectionsLoaded(
+                        sections = fallbackSections,
+                        markLoaded = true
                     )
                 } else {
                     val message =
@@ -199,7 +194,8 @@ class AccountListViewModel(
                         isExpanded = existing?.isExpanded ?: false,
                         isLoadingAccounts = existing?.isLoadingAccounts ?: false,
                         accounts = existing?.accounts ?: emptyList(),
-                        accountsError = existing?.accountsError
+                        accountsError = existing?.accountsError,
+                        totalBalance = existing?.totalBalance
                     )
                 }
             return BankSectionUi(title = title, banks = banks)
@@ -216,4 +212,52 @@ class AccountListViewModel(
         title = name,
         account = this
     )
+
+    private suspend fun handleSectionsLoaded(
+        sections: List<BankSectionUi>,
+        markLoaded: Boolean
+    ) {
+        dispatch(
+            AccountListIntent.InternalBanksLoaded(
+                sections = sections,
+                markLoaded = markLoaded
+            )
+        )
+        prefetchBankAccountsForTotals(sections)
+    }
+
+    private suspend fun prefetchBankAccountsForTotals(sections: List<BankSectionUi>) {
+        sections
+            .flatMap { it.banks }
+            .forEach { bank ->
+                val existingBank = state.value.sections
+                    .flatMap { it.banks }
+                    .firstOrNull { it.id == bank.id }
+                val hasAccountsLoaded = existingBank?.accounts?.isNotEmpty() == true
+                val hasTotal = existingBank?.totalBalance != null
+                val isLoading = existingBank?.isLoadingAccounts == true
+                if (hasAccountsLoaded || hasTotal || isLoading) return@forEach
+
+                runCatching {
+                    getAccountsForBankUseCase(
+                        GetAccountsForBankUseCase.Params(bankId = bank.id)
+                    )
+                }
+                    .onSuccess { accounts ->
+                        val accountItems = accounts
+                            .sortedBy { it.name.lowercase() }
+                            .map { it.toUi() }
+                        dispatch(
+                            AccountListIntent.InternalAccountsLoaded(
+                                bankId = bank.id,
+                                accounts = accountItems
+                            )
+                        )
+                    }
+                    .onFailure { throwable ->
+                        if (throwable is CancellationException) throw throwable
+                        // Silently ignore prefetch failures; totals will load on demand.
+                    }
+            }
+    }
 }

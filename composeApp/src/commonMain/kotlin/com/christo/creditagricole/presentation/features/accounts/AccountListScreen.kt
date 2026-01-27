@@ -18,6 +18,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -33,11 +34,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import com.christo.creditagricole.designsystem.components.SectionTitle
 import com.christo.creditagricole.domain.model.Account
 import com.christo.creditagricole.domain.model.BankId
 import com.christo.creditagricole.presentation.features.navigation.MainBottomBar
 import com.christo.creditagricole.presentation.features.navigation.MainBottomBarDestination
+import com.christo.creditagricole.presentation.utils.formatAsCurrency
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -232,9 +238,16 @@ private fun BankCollapsibleCell(
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f)
                 )
-                Text(
-                    text = if (bank.isExpanded) "−" else "+",
-                    style = MaterialTheme.typography.titleLarge
+                bank.totalBalance?.let { money ->
+                    Text(
+                        text = money.formatAsCurrency(),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(end = 12.dp)
+                    )
+                }
+                Icon(
+                    imageVector = if (bank.isExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                    contentDescription = if (bank.isExpanded) "Réduire" else "Déplier"
                 )
             }
 
@@ -275,14 +288,28 @@ private fun BankCollapsibleCell(
                                     ),
                                     color = MaterialTheme.colorScheme.outlineVariant
                                 )
-                                Text(
-                                    text = account.title,
-                                    style = MaterialTheme.typography.bodyLarge,
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clickable(onClick = { onAccountSelected(account) })
-                                        .padding(vertical = 4.dp)
-                                )
+                                        .padding(start = 16.dp, top = 6.dp, bottom = 6.dp)
+                                ) {
+                                    Text(
+                                        text = account.title,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Text(
+                                        text = account.account.balance.formatAsCurrency(),
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                    Icon(
+                                        imageVector = Icons.Filled.ChevronRight,
+                                        contentDescription = "Consulter le détail",
+                                        modifier = Modifier.padding(start = 12.dp)
+                                    )
+                                }
                             }
                         }
                     }

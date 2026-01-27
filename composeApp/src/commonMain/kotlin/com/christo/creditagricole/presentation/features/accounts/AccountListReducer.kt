@@ -2,6 +2,7 @@ package com.christo.creditagricole.presentation.features.accounts
 
 import com.christo.creditagricole.base.MviReducer
 import com.christo.creditagricole.domain.model.BankId
+import com.christo.creditagricole.domain.model.Money
 
 object AccountListReducer : MviReducer<AccountListState, AccountListResult> {
     override fun reduce(currentState: AccountListState, result: AccountListResult): AccountListState =
@@ -49,10 +50,10 @@ object AccountListReducer : MviReducer<AccountListState, AccountListResult> {
             is AccountListResult.AccountsContent -> currentState.copy(
                 sections = currentState.sections.updateBank(result.bankId) { bank ->
                     bank.copy(
-                        isExpanded = true,
                         isLoadingAccounts = false,
                         accounts = result.accounts,
-                        accountsError = null
+                        accountsError = null,
+                        totalBalance = result.accounts.totalBalanceOrNull() ?: bank.totalBalance
                     )
                 }
             )
@@ -89,3 +90,13 @@ private fun List<BankSectionUi>.updateBank(
         }
         section.copy(banks = updatedBanks)
     }
+
+private fun List<AccountItemUi>.totalBalanceOrNull(): Money? {
+    if (isEmpty()) return null
+    val currency = first().account.balance.currencyCode
+    val totalMinor = sumOf { it.account.balance.amountInMinor }
+    return Money(
+        amountInMinor = totalMinor,
+        currencyCode = currency
+    )
+}
