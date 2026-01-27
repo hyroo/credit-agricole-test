@@ -71,19 +71,6 @@ fun AccountsScreen(
             TopTitle("Mes Comptes")
         }
 
-//        items(state.creditAgricoleAccounts) { group ->
-//            ListSectionItems(
-//                title = "Credit Agricole",
-//                items = group
-//            ) { acc ->
-//                ListRow(
-//                    title = acc.title,
-//                    value = acc.amountFormatted,
-//                    onClick = { onIntent(AccountsIntent.AccountClicked(acc.id)) },
-//                    trailing = ListRowTrailings.ChevronDown
-//                )
-//            }
-//        }
         item {
             ListSectionItems(
                 title = "Credit Agricole",

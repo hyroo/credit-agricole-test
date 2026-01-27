@@ -30,11 +30,13 @@ internal fun BankDto.toDomain(): Bank = runCatching {
         ?.takeIf { it.length == 2 && it.all { char -> char.isLetter() } }
         ?.uppercase()
         ?: DEFAULT_COUNTRY_CODE
+    val isCa = (isCaFlag ?: 0) == 1
 
     Bank(
         id = BankId(resolvedIdValue),
         name = resolvedName,
-        countryCode = resolvedCountryCode
+        countryCode = resolvedCountryCode,
+        isCreditAgricole = isCa
     )
 }.getOrElse { throwable ->
     throw DataMappingException("Impossible de mapper la banque ${id ?: name}", throwable)

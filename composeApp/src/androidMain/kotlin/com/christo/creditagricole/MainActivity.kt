@@ -10,12 +10,13 @@ import com.christo.creditagricole.designsystem.theme.ColorScheme
 import com.christo.creditagricole.designsystem.theme.Theme
 import com.christo.creditagricole.presentation.features.accounts.AccountsMock
 import com.christo.creditagricole.presentation.features.accounts.AccountsRoute
+import com.christo.creditagricole.di.initKoin
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-
+        initKoin()
         setContent {
             App()
         }
