@@ -46,7 +46,7 @@ fun AccountListScreen(
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.dispatch(BankListIntent.OnAppear)
+        viewModel.dispatch(AccountListIntent.OnAppear)
     }
 
     LaunchedEffect(viewModel) {
@@ -59,9 +59,9 @@ fun AccountListScreen(
 
     LaunchedEffect(state.navigationTarget) {
         val target = state.navigationTarget ?: return@LaunchedEffect
-        viewModel.dispatch(BankListIntent.OnNavigationConsumed)
+        viewModel.dispatch(AccountListIntent.OnNavigationConsumed)
         when (target) {
-            is BankListNavigation.ToAccountDetail -> onNavigateToAccountDetail(
+            is AccountListNavigation.ToAccountDetail -> onNavigateToAccountDetail(
                 target.bankName,
                 target.account
             )
@@ -75,11 +75,11 @@ fun AccountListScreen(
         BankListContent(
             state = state,
             padding = padding,
-            onRefresh = { viewModel.dispatch(BankListIntent.OnRefresh) },
-            onBankToggled = { viewModel.dispatch(BankListIntent.OnBankToggled(it)) },
+            onRefresh = { viewModel.dispatch(AccountListIntent.OnRefresh) },
+            onBankToggled = { viewModel.dispatch(AccountListIntent.OnBankToggled(it)) },
             onAccountSelected = { bankId, bankName, account ->
                 viewModel.dispatch(
-                    BankListIntent.OnAccountSelected(
+                    AccountListIntent.OnAccountSelected(
                         bankId = bankId,
                         bankName = bankName,
                         account = account

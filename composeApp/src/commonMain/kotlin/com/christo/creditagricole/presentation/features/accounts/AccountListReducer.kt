@@ -3,18 +3,18 @@ package com.christo.creditagricole.presentation.features.accounts
 import com.christo.creditagricole.base.MviReducer
 import com.christo.creditagricole.domain.model.BankId
 
-object AccountListReducer : MviReducer<AccountListState, BankListResult> {
-    override fun reduce(currentState: AccountListState, result: BankListResult): AccountListState =
+object AccountListReducer : MviReducer<AccountListState, AccountListResult> {
+    override fun reduce(currentState: AccountListState, result: AccountListResult): AccountListState =
         when (result) {
-            BankListResult.Idle -> currentState
+            AccountListResult.Idle -> currentState
 
-            BankListResult.Loading -> currentState.copy(
+            AccountListResult.Loading -> currentState.copy(
                 isLoading = true,
                 errorMessage = null,
                 navigationTarget = null
             )
 
-            is BankListResult.BanksContent -> currentState.copy(
+            is AccountListResult.BanksContent -> currentState.copy(
                 isLoading = false,
                 hasLoaded = currentState.hasLoaded || result.markLoaded,
                 sections = result.sections,
@@ -22,12 +22,12 @@ object AccountListReducer : MviReducer<AccountListState, BankListResult> {
                 navigationTarget = null
             )
 
-            is BankListResult.Error -> currentState.copy(
+            is AccountListResult.Error -> currentState.copy(
                 isLoading = false,
                 errorMessage = result.message
             )
 
-            is BankListResult.ToggleExpanded -> currentState.copy(
+            is AccountListResult.ToggleExpanded -> currentState.copy(
                 sections = currentState.sections.updateBank(result.bankId) { bank ->
                     bank.copy(
                         isExpanded = !bank.isExpanded,
@@ -36,7 +36,7 @@ object AccountListReducer : MviReducer<AccountListState, BankListResult> {
                 }
             )
 
-            is BankListResult.AccountsLoading -> currentState.copy(
+            is AccountListResult.AccountsLoading -> currentState.copy(
                 sections = currentState.sections.updateBank(result.bankId) { bank ->
                     bank.copy(
                         isExpanded = true,
@@ -46,7 +46,7 @@ object AccountListReducer : MviReducer<AccountListState, BankListResult> {
                 }
             )
 
-            is BankListResult.AccountsContent -> currentState.copy(
+            is AccountListResult.AccountsContent -> currentState.copy(
                 sections = currentState.sections.updateBank(result.bankId) { bank ->
                     bank.copy(
                         isExpanded = true,
@@ -57,7 +57,7 @@ object AccountListReducer : MviReducer<AccountListState, BankListResult> {
                 }
             )
 
-            is BankListResult.AccountsError -> currentState.copy(
+            is AccountListResult.AccountsError -> currentState.copy(
                 sections = currentState.sections.updateBank(result.bankId) { bank ->
                     bank.copy(
                         isLoadingAccounts = false,
@@ -66,14 +66,14 @@ object AccountListReducer : MviReducer<AccountListState, BankListResult> {
                 }
             )
 
-            is BankListResult.NavigateToAccountDetail -> currentState.copy(
-                navigationTarget = BankListNavigation.ToAccountDetail(
+            is AccountListResult.NavigateToAccountDetail -> currentState.copy(
+                navigationTarget = AccountListNavigation.ToAccountDetail(
                     bankName = result.bankName,
                     account = result.account
                 )
             )
 
-            BankListResult.NavigationConsumed -> currentState.copy(
+            AccountListResult.NavigationConsumed -> currentState.copy(
                 navigationTarget = null
             )
         }

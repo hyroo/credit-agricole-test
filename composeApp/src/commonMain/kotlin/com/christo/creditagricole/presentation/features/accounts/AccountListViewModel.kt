@@ -14,55 +14,55 @@ class AccountListViewModel(
     private val getBanksUseCase: GetBanksUseCase,
     private val getMockBanksUseCase: GetMockBanksUseCase,
     private val getAccountsForBankUseCase: GetAccountsForBankUseCase
-) : BaseMVIViewModel<BankListIntent, AccountListState, BankListResult, BankListEffect>(
+) : BaseMVIViewModel<AccountListIntent, AccountListState, AccountListResult, BankListEffect>(
     initialState = AccountListState(),
     reducer = AccountListReducer,
     dispatcherProvider = dispatcherProvider
 ) {
 
-    override suspend fun executeIntent(intent: BankListIntent): BankListResult = when (intent) {
-        BankListIntent.OnAppear,
-        BankListIntent.OnRefresh -> {
+    override suspend fun executeIntent(intent: AccountListIntent): AccountListResult = when (intent) {
+        AccountListIntent.OnAppear,
+        AccountListIntent.OnRefresh -> {
             loadBanks(forceRefresh = true)
-            BankListResult.Idle
+            AccountListResult.Idle
         }
 
-        is BankListIntent.OnBankToggled -> handleBankToggle(intent.bankId)
+        is AccountListIntent.OnBankToggled -> handleBankToggle(intent.bankId)
 
-        is BankListIntent.OnAccountSelected -> {
-            BankListResult.NavigateToAccountDetail(
+        is AccountListIntent.OnAccountSelected -> {
+            AccountListResult.NavigateToAccountDetail(
                 bankName = intent.bankName,
                 account = intent.account.account
             )
         }
 
-        BankListIntent.OnNavigationConsumed -> BankListResult.NavigationConsumed
+        AccountListIntent.OnNavigationConsumed -> AccountListResult.NavigationConsumed
 
-        BankListIntent.InternalLoading -> BankListResult.Loading
+        AccountListIntent.InternalLoading -> AccountListResult.Loading
 
-        is BankListIntent.InternalBanksLoaded -> BankListResult.BanksContent(
+        is AccountListIntent.InternalBanksLoaded -> AccountListResult.BanksContent(
             sections = intent.sections,
             markLoaded = intent.markLoaded
         )
 
-        is BankListIntent.InternalError -> BankListResult.Error(intent.message)
+        is AccountListIntent.InternalError -> AccountListResult.Error(intent.message)
 
-        is BankListIntent.InternalAccountsLoading -> BankListResult.AccountsLoading(intent.bankId)
+        is AccountListIntent.InternalAccountsLoading -> AccountListResult.AccountsLoading(intent.bankId)
 
-        is BankListIntent.InternalAccountsLoaded -> BankListResult.AccountsContent(
+        is AccountListIntent.InternalAccountsLoaded -> AccountListResult.AccountsContent(
             bankId = intent.bankId,
             accounts = intent.accounts
         )
 
-        is BankListIntent.InternalAccountsError -> BankListResult.AccountsError(
+        is AccountListIntent.InternalAccountsError -> AccountListResult.AccountsError(
             bankId = intent.bankId,
             message = intent.message
         )
     }
 
-    override suspend fun onEffect(result: BankListResult): BankListEffect? = when (result) {
-        is BankListResult.Error -> BankListEffect.ShowError(result.message)
-        is BankListResult.AccountsError -> BankListEffect.ShowError(result.message)
+    override suspend fun onEffect(result: AccountListResult): BankListEffect? = when (result) {
+        is AccountListResult.Error -> BankListEffect.ShowError(result.message)
+        is AccountListResult.AccountsError -> BankListEffect.ShowError(result.message)
         else -> null
     }
 
@@ -70,7 +70,7 @@ class AccountListViewModel(
         if (state.value.isLoading) return
         if (!forceRefresh && state.value.hasLoaded) return
 
-        dispatch(BankListIntent.InternalLoading)
+        dispatch(AccountListIntent.InternalLoading)
 
         val currentSections = state.value.sections
         val fallbackSections = runCatching { getMockBanksUseCase() }
@@ -82,7 +82,7 @@ class AccountListViewModel(
 
         if (fallbackSections.isNotEmpty() && currentSections.isEmpty()) {
             dispatch(
-                BankListIntent.InternalBanksLoaded(
+                AccountListIntent.InternalBanksLoaded(
                     sections = fallbackSections,
                     markLoaded = true
                 )
@@ -99,17 +99,17 @@ class AccountListViewModel(
                 if (filteredSections.isEmpty()) {
                     if (fallbackSections.isNotEmpty()) {
                         dispatch(
-                            BankListIntent.InternalBanksLoaded(
+                            AccountListIntent.InternalBanksLoaded(
                                 sections = fallbackSections,
                                 markLoaded = true
                             )
                         )
                     } else {
-                        dispatch(BankListIntent.InternalError("Aucune banque disponible."))
+                        dispatch(AccountListIntent.InternalError("Aucune banque disponible."))
                     }
                 } else {
                     dispatch(
-                        BankListIntent.InternalBanksLoaded(
+                        AccountListIntent.InternalBanksLoaded(
                             sections = filteredSections,
                             markLoaded = true
                         )
@@ -119,7 +119,7 @@ class AccountListViewModel(
             .onFailure { throwable ->
                 if (fallbackSections.isNotEmpty()) {
                     dispatch(
-                        BankListIntent.InternalBanksLoaded(
+                        AccountListIntent.InternalBanksLoaded(
                             sections = fallbackSections,
                             markLoaded = true
                         )
@@ -127,25 +127,25 @@ class AccountListViewModel(
                 } else {
                     val message =
                         throwable.message.orEmpty().ifEmpty { "Une erreur s'est produite." }
-                    dispatch(BankListIntent.InternalError(message))
+                    dispatch(AccountListIntent.InternalError(message))
                 }
             }
     }
 
-    private suspend fun handleBankToggle(bankId: BankId): BankListResult {
+    private suspend fun handleBankToggle(bankId: BankId): AccountListResult {
         val bankCell = state.value.sections
             .flatMap(BankSectionUi::banks)
-            .firstOrNull { it.id == bankId } ?: return BankListResult.Idle
+            .firstOrNull { it.id == bankId } ?: return AccountListResult.Idle
 
         return if (bankCell.isExpanded) {
-            BankListResult.ToggleExpanded(bankId)
+            AccountListResult.ToggleExpanded(bankId)
         } else {
             if (bankCell.accounts.isEmpty()) {
-                dispatch(BankListIntent.InternalAccountsLoading(bankId))
+                dispatch(AccountListIntent.InternalAccountsLoading(bankId))
                 fetchAccounts(bankId)
-                BankListResult.Idle
+                AccountListResult.Idle
             } else {
-                BankListResult.ToggleExpanded(bankId)
+                AccountListResult.ToggleExpanded(bankId)
             }
         }
     }
@@ -161,7 +161,7 @@ class AccountListViewModel(
                     .sortedBy { it.name.lowercase() }
                     .map { it.toUi() }
                 dispatch(
-                    BankListIntent.InternalAccountsLoaded(
+                    AccountListIntent.InternalAccountsLoaded(
                         bankId = bankId,
                         accounts = accountItems
                     )
@@ -171,7 +171,7 @@ class AccountListViewModel(
                 val message =
                     throwable.message.orEmpty().ifEmpty { "Impossible de charger les comptes." }
                 dispatch(
-                    BankListIntent.InternalAccountsError(
+                    AccountListIntent.InternalAccountsError(
                         bankId = bankId,
                         message = message
                     )

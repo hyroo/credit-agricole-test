@@ -1,134 +1,147 @@
 # Credit Agricole Test – Kotlin Multiplatform App
 
-Cette application illustre une architecture Clean + MVI reposant sur Kotlin Multiplatform, Compose Multiplatform et une base réseau Ktor/Ktorfit injectée via Koin.  
-L’écran principal présente les comptes d’une cliente répartis entre le Crédit Agricole et les autres banques conformément aux règles métier (RG00–RG04).
+Cette application multiplateforme (Android & iOS) illustre une architecture Clean + MVI en Kotlin 2.3.  
+La liste des comptes est segmentée entre le Crédit Agricole et les autres banques en respectant les règles métier RG00–RG04.
 
 ---
 
-## **Overview**
-
-## **TODO**
-
-### 🚀 Fonctionnalités
-- [ ] Implémenter l'architecture MVI / Clean Architecture
-- [ ] Ajouter les libraries
-- [ ] Implémenter les fonctionnalités principales
-- [ ] Gérer les cas d’erreur
+## Aperçu rapide
+- Kotlin Multiplatform + Compose Multiplatform pour partager la logique métier et l’UI.
+- Flux unidirectionnel : use cases Domain, repositories Data, ViewModel MVI en Presentation.
+- Couche réseau Ktor/Ktorfit avec implémentation manuelle et cache en mémoire du snapshot `banks.json` pour limiter les appels API.
+- Règles métiers (séparation CA, sections collapsibles, tri alphabétique) implémentées dans la présentation.
 
 ---
 
-## **Features**
+## Prise en main
 
-✔ **Architecture** – MVI / Clean Architecture.
-✔ **Library** – Implémenter les librairies
-✔ **Architecture** – Data / Domain / Presentation
-✔ **Account Listing** – Displays a list of accounts.
-✔ **Detail Account** – Display detail account.
+### Prérequis
+- JDK 17 (AGP 8.11 l’exige).
+- Android Studio Koala ou plus récent avec le plugin Kotlin Multiplatform.
+- Xcode 15+ et CocoaPods 1.13+ pour lancer l’application iOS.
+- `./gradlew --version` doit fonctionner (Gradle wrapper fourni).
 
-## Sources / Bibliothèque
+### Installation
+1. Cloner le dépôt :  
+   `git clone https://github.com/<votre-org>/credit-agricole-test.git`
+2. Se placer dans le projet :  
+   `cd credit-agricole-test`
+3. (Optionnel) Vérifier que la configuration Compose est OK :  
+   `./gradlew doctor`
 
-| Bibliothèque | Lien | Rôle principal |
-|--------------|------|----------------|
-| **Kotlin Multiplatform** | [kotlinlang.org](https://kotlinlang.org/docs/multiplatform.html) | Partage de code entre Android et iOS |
-| **Compose Multiplatform** | [github.com/JetBrains/compose-multiplatform](https://github.com/JetBrains/compose-multiplatform) | UI déclarative partagée |
-| **Koin 4** | [insert-koin.io](https://insert-koin.io/docs/reference/koin-mp/start) | Injection de dépendances multiplateforme |
-| **Ktor 3** | [ktor.io/docs/http-client](https://ktor.io/docs/http-client.html) | Client HTTP multiplateforme |
-| **Ktorfit 2** | [github.com/Foso/Ktorfit](https://github.com/Foso/Ktorfit) | DSL Retrofit-like au-dessus de Ktor |
-| **kotlinx.serialization** | [kotlinlang.org/docs/serialization.html](https://kotlinlang.org/docs/serialization.html) | (De)serialisation JSON |
-| **Coroutines** | [kotlinlang.org/docs/coroutines-overview.html](https://kotlinlang.org/docs/coroutines-overview.html) | Concurrence structurée |
+### Lancer l’application
+
+#### Android
+- Depuis Android Studio : ouvrir le projet et exécuter la configuration `composeApp`.
+- En ligne de commande :  
+  `./gradlew :composeApp:installDebug` puis lancer l’application sur l’émulateur/appareil.
+
+#### iOS (Compose Multiplatform)
+1. Synchroniser le framework partagé si nécessaire :  
+   `./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64`
+2. Ouvrir `iosApp/iosApp.xcodeproj` et sélectionner le schéma `iosApp`.
+3. Choisir un simulateur (ARM64) puis `⌘R`.
+
+### Tests
+Exécuter l’ensemble des tests multiplateformes :  
+`./gradlew :composeApp:check`
+
+---
+
+### Configuration
+- **Base URL** : par défaut `https://cdf-test-mobile-default-rtdb.europe-west1.firebasedatabase.app/`.  
+  Pour cibler un autre backend, injecter la propriété Koin `base_url` lors de l’appel à `initKoin { properties(mapOf(PROPERTY_BASE_URL to "<url>")) }`.
+- **Jeu de données local** : le fichier `banks.json` à la racine reproduit la payload distante et est consommé par les tests / fixtures.
+- **Cache** : le `BankingApi` conserve la dernière réponse `banks.json` en mémoire. Un futur `forceRefresh` pourra être propagé depuis la couche présentation (pull-to-refresh).
+
+### Commandes utiles
+- `./gradlew :composeApp:assembleDebug` : build Android sans installer.
+- `./gradlew :composeApp:lint` : lint Kotlin et Compose.
+- `./gradlew :composeApp:test` : tests JVM (unitaires) pour la partie commune.
+- `./gradlew --stop` : arrêter les daemons Gradle en cas de souci de build.
+
+---
+
+## Règles métier (RG00–RG04)
+- **RG00 – Séparation CA / autres banques**  
+  Les données sont partitionnées dans `AccountListViewModel.toSections`.
+- **RG01 – Cellules bancaires dépliantes**  
+  `BankCollapsibleCell` gère un état `isExpanded` et déclenche un `ToggleExpanded`.
+- **RG02 – Sections CA puis autres banques**  
+  La construction des sections impose l’ordre « Banques Crédit Agricole » avant « Autres banques ».
+- **RG03 – Tri alphabétique des comptes**  
+  Les comptes sont triés via `accounts.sortedBy { it.name.lowercase() }` avant rendu.
+- **RG04 – Comptes listés lors du dépliage**  
+  Quand une banque est ouverte, ses comptes (`AccountItemUi.title`) sont affichés avec gestion des états (chargement, erreur, vide).
 
 ---
 
 ## Architecture
 
-### Vue d’ensemble
+### Data
+- `HttpClientFactory` construit un client Ktor commun et un builder Ktorfit.
+- `Ktorfit.createBankingApi()` fournit une implémentation manuelle de `BankingApi`.  
+  Le snapshot `banks.json` est mis en cache en mémoire (`Mutex` + `cachedBanks`) pour réduire les appels réseau.
+- Repositories (`BankRepositoryImpl`, `AccountRepositoryImpl`, `OperationRepositoryImpl`) encapsulent les accès API et remontent les modèles Domain.
 
-- **Clean Architecture** stricte : séparation Domain / Data / Presentation.
-- **MVI** (Model–View–Intent) pour la couche présentation.
-- **Kotlin Multiplatform** pour partager les use cases, repositories, modèles et logique de présentation.
-- **Compose Multiplatform** pour l’UI partagée Android/iOS.
+### Domain
+- Modèles riches (`Bank`, `Account`, `Operation`, `Money`, `BankId`, …) garantissant les invariants.
+- Use cases `GetBanksUseCase`, `GetAccountsForBankUseCase`, `GetOperationsForAccountUseCase` ordonnent et filtrent les données avant exposition.
+- `DispatcherProvider` injecté pour garder la logique testable.
 
-```
-androidApp | iosApp
-      \        /
-      └── shared (composeApp)
-            ├── data
-            ├── domain
-            ├── presentation
-            └── di
-```
-
-### Couche Data
-
-- Interfaces `BankingApi` déclarées avec Ktorfit.
-- Implémentations runtime via `createBankingApi()` (pas de génération KSP requise).
-- `BankRepositoryImpl` interroge l’API Firebase (`banks.json`) et retombe sur `BanksFixtures` (banks.json local) en cas d’erreur réseau.
-- Mapping explicite DTO → Domain (`BankDto.toDomain()` etc.) pour préserver les invariants (MG/iso, signes, tri).
-
-Exemple rapide :
-```kotlin
-override suspend fun getBanks(): List<Bank> = runCatching {
-    api.getBanks().banks.map { it.toDomain() }
-}.getOrElse { BanksFixtures.response.banks.map { it.toDomain() } }
-```
-
-### Couche Domain
-
-- Value objects (`BankId`, `Money`, …) et entités (`Bank`, `Account`, `Operation`).
-- Interfaces `BankRepository`, `AccountRepository`, `OperationRepository`.
-- Use cases (`GetBanksUseCase`, `GetAccountsForBankUseCase`, …) appliquent les règles métier RG00–RG04 : séparation CA / autres banques, tri alphabétique, totalisation.
-- `DispatcherProvider` injecté pour garder les suspending functions testables.
-
-Exemple :
-```kotlin
-val (caBanks, otherBanks) = repository.getBanks().partition { it.isCreditAgricole }
-val caAccounts = caBanks.flatMap { it.accounts }.sortedBy { it.name.lowercase() }
-```
-
-### Couche Presentation
-
-- Compose Multiplatform + MVI maison (`AccountsState`, `AccountsIntent`, `AccountsEffect`).
-- `AccountsRoute` observe le state, dispatch les intents et adapte l’affichage (groupes dépliants, totaux).
-- Rendu sous forme de sections : « Mes Comptes » (CA) et « Autres Banques » (groupes collapsibles par banque), aligné avec RG01–RG04.
-
-Extrait simplifié :
-```kotlin
-ExpandableGroup(
-    headerTitle = group.title,
-    headerValue = group.totalAmountFormatted,
-    expanded = group.expanded,
-    onToggle = { onIntent(AccountsIntent.ToggleGroup(group.groupId)) }
-) { /* comptes de la banque */ }
-```
-
-### Injection (DI)
-
-- Koin initialise les modules Core (dispatchers), Data (client HTTP + repositories), Domain (use cases) et Presentation.
-- L’initialisation multiplateforme passe par `initKoin(baseUrl = …)`.
+### Presentation
+- `AccountListViewModel` implémente un MVI simple (`AccountListIntent`, `AccountListState`, `AccountListResult`).
+- `AccountListReducer` applique les effets sur l’état (chargement, toggles, erreurs).
+- `AccountListScreen` (Compose) rend les sections et les cellules dépliables avec gestion des retours ViewModel.
 
 ---
 
-## Design System
-
-- Dossier `designsystem` : palette, tailles, composants réutilisables.
-- `ThemeDefaults` centralise les couleurs et espacements.
-- Composants majeurs :
-  - `TopTitle`, `SectionTitle` pour la hiérarchie typographique.
-  - `ListRow` / `ListRowTrailings` pour la présentation homogène des comptes.
-  - `ExpandableGroup` pour les sections dépliables (RG01).
-  - `BottomBar` pour la navigation tabulaire.
-
-Ces briques permettent de réutiliser la même charte sur Android et iOS en conservant un thème unique.
+## Flux réseau & cache
+- Base URL par défaut : `https://cdf-test-mobile-default-rtdb.europe-west1.firebasedatabase.app/`.
+- `GET banks.json` est appelé une seule fois, puis servi depuis le cache mémoire tant que l’application reste active.
+- Le cache peut être rafraîchi en appelant `fetchBanksSnapshot(forceRefresh = true)` (extension prévue pour les évolutions).
 
 ---
 
-## Aller plus loin
-
-- Ajouter un store MVI complet avec appels aux use cases.
-- Étendre la data layer aux autres endpoints (accounts / operations) si l’API évolue.
-- Écrire des tests unitaires multiplateformes sur les use cases et mappers.
+## Structure du projet
+```
+.
+├── composeApp/
+│   ├── src/commonMain/
+│   │   ├── data/        // API, DTO, repositories, réseau
+│   │   ├── domain/      // modèles, repositories, use cases
+│   │   └── presentation // MVI, UI Compose partagée
+│   ├── src/androidMain/ // Entrée Android + intégrations spécifiques
+│   └── src/iosMain/     // Entrée iOS (ComposeUIViewController)
+├── iosApp/              // Projet Xcode hôte
+├── banks.json           // Snapshot de test local
+├── gradle/              // Wrapper & versions
+└── README.md
+```
 
 ---
 
-`test_entretien_cats`  
-[Consigne PDF](test_mobile_CA.pdf)
+## Dépendances principales
+
+| Bibliothèque | Version | Rôle |
+|--------------|---------|------|
+| Kotlin Multiplatform | 2.3.0 | Partage de code |
+| Compose Multiplatform | 1.10.0 | UI déclarative |
+| Android Gradle Plugin | 8.11.2 | Build Android |
+| Coroutines | 1.10.2 | Concurrence |
+| Ktor | 3.4.0 | Client HTTP |
+| Ktorfit | 2.7.2 | DSL type-safe pour Ktor |
+| Koin | 4.1.1 | Injection de dépendances |
+| kotlinx.serialization | 1.7.x | JSON |
+
+---
+
+## Roadmap / TODO
+- Implémenter `BankRepository.getMockBanks()` pour fournir un fallback hors-ligne.
+- Ajouter des tests unitaires sur les use cases et le reducer.
+- Gérer l’invalidation du cache `banks.json` (pull-to-refresh, TTL).
+- Ajouter des aperçus Compose (Preview) supplémentaires et des tests UI.
+
+---
+
+`test_mobile_CA.pdf` contient l’énoncé initial.

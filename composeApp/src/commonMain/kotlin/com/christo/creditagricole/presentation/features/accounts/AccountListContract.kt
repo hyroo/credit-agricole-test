@@ -12,7 +12,7 @@ data class AccountListState(
     val hasLoaded: Boolean = false,
     val errorMessage: String? = null,
     val sections: List<BankSectionUi> = emptyList(),
-    val navigationTarget: BankListNavigation? = null
+    val navigationTarget: AccountListNavigation? = null
 ) : MviState
 
 data class BankSectionUi(
@@ -36,48 +36,48 @@ data class AccountItemUi(
     val account: Account
 )
 
-sealed interface BankListNavigation {
-    data class ToAccountDetail(val bankName: String, val account: Account) : BankListNavigation
+sealed interface AccountListNavigation {
+    data class ToAccountDetail(val bankName: String, val account: Account) : AccountListNavigation
 }
 
-sealed interface BankListIntent : MviIntent {
-    data object OnAppear : BankListIntent
-    data object OnRefresh : BankListIntent
-    data class OnBankToggled(val bankId: BankId) : BankListIntent
+sealed interface AccountListIntent : MviIntent {
+    data object OnAppear : AccountListIntent
+    data object OnRefresh : AccountListIntent
+    data class OnBankToggled(val bankId: BankId) : AccountListIntent
     data class OnAccountSelected(
         val bankId: BankId,
         val bankName: String,
         val account: AccountItemUi
-    ) : BankListIntent
-    data object OnNavigationConsumed : BankListIntent
+    ) : AccountListIntent
+    data object OnNavigationConsumed : AccountListIntent
 
-    data object InternalLoading : BankListIntent
+    data object InternalLoading : AccountListIntent
     data class InternalBanksLoaded(
         val sections: List<BankSectionUi>,
         val markLoaded: Boolean
-    ) : BankListIntent
+    ) : AccountListIntent
 
-    data class InternalError(val message: String) : BankListIntent
-    data class InternalAccountsLoading(val bankId: BankId) : BankListIntent
-    data class InternalAccountsLoaded(val bankId: BankId, val accounts: List<AccountItemUi>) : BankListIntent
-    data class InternalAccountsError(val bankId: BankId, val message: String) : BankListIntent
+    data class InternalError(val message: String) : AccountListIntent
+    data class InternalAccountsLoading(val bankId: BankId) : AccountListIntent
+    data class InternalAccountsLoaded(val bankId: BankId, val accounts: List<AccountItemUi>) : AccountListIntent
+    data class InternalAccountsError(val bankId: BankId, val message: String) : AccountListIntent
 }
 
-sealed interface BankListResult {
-    data object Idle : BankListResult
-    data object Loading : BankListResult
+sealed interface AccountListResult {
+    data object Idle : AccountListResult
+    data object Loading : AccountListResult
     data class BanksContent(
         val sections: List<BankSectionUi>,
         val markLoaded: Boolean
-    ) : BankListResult
+    ) : AccountListResult
 
-    data class Error(val message: String) : BankListResult
-    data class ToggleExpanded(val bankId: BankId) : BankListResult
-    data class AccountsLoading(val bankId: BankId) : BankListResult
-    data class AccountsContent(val bankId: BankId, val accounts: List<AccountItemUi>) : BankListResult
-    data class AccountsError(val bankId: BankId, val message: String) : BankListResult
-    data class NavigateToAccountDetail(val bankName: String, val account: Account) : BankListResult
-    data object NavigationConsumed : BankListResult
+    data class Error(val message: String) : AccountListResult
+    data class ToggleExpanded(val bankId: BankId) : AccountListResult
+    data class AccountsLoading(val bankId: BankId) : AccountListResult
+    data class AccountsContent(val bankId: BankId, val accounts: List<AccountItemUi>) : AccountListResult
+    data class AccountsError(val bankId: BankId, val message: String) : AccountListResult
+    data class NavigateToAccountDetail(val bankName: String, val account: Account) : AccountListResult
+    data object NavigationConsumed : AccountListResult
 }
 
 sealed interface BankListEffect : MviEffect {
