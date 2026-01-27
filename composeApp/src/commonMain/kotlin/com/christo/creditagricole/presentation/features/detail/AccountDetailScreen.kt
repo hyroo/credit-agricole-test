@@ -1,7 +1,6 @@
 package com.christo.creditagricole.presentation.features.detail
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,9 +14,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -74,16 +77,21 @@ fun AccountDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "") },
-                navigationIcon = {
+                title = {
                     Text(
-                        text = "< Mes Comptes",
-                        modifier = Modifier
-                            .padding(start = 16.dp)
-                            .clickable { viewModel.dispatch(AccountDetailIntent.OnBackClicked) },
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary
+                        text = "Mes comptes",
+                        style = MaterialTheme.typography.bodyLarge
                     )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = { viewModel.dispatch(AccountDetailIntent.OnBackClicked) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ChevronLeft,
+                            contentDescription = "Retour"
+                        )
+                    }
                 }
             )
         },
@@ -110,17 +118,26 @@ private fun AccountDetailContent(
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = state.balance,
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = state.accountKind,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = state.balance,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = state.accountKind,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -250,11 +267,13 @@ private fun OperationRow(operation: OperationItemUi) {
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = operation.typeLabel,
-                style = MaterialTheme.typography.bodySmall
-            )
-            Spacer(modifier = Modifier.width(8.dp))
+            if (operation.typeLabel.isNotBlank()) {
+                Text(
+                    text = operation.typeLabel,
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
             Text(
                 text = "Le ${operation.executedAt}",
                 style = MaterialTheme.typography.bodySmall,

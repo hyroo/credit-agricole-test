@@ -6,6 +6,9 @@ import com.christo.creditagricole.domain.model.Account
 import com.christo.creditagricole.domain.model.Money
 import com.christo.creditagricole.domain.model.Operation
 import com.christo.creditagricole.domain.model.OperationType
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import com.christo.creditagricole.domain.usecase.GetOperationsForAccountUseCase
 import kotlin.math.abs
 
@@ -87,10 +90,10 @@ class AccountDetailViewModel(
         description = description,
         amount = formatMoney(amount),
         typeLabel = when (type) {
-            OperationType.CREDIT -> "Credit"
-            OperationType.DEBIT -> "Debit"
+            OperationType.CREDIT -> "Crédit"
+            OperationType.DEBIT -> ""
         },
-        executedAt = executedAtEpochMillis.toString()
+        executedAt = executedAtEpochMillis.toFormattedDate()
     )
 
     companion object {
@@ -115,6 +118,18 @@ class AccountDetailViewModel(
             val centsString = cents.toString().padStart(2, '0')
             val sign = if (money.amountInMinor < 0) "-" else ""
             return "$sign$units.$centsString ${money.currencyCode}"
+        }
+
+        private fun Long.toFormattedDate(): String {
+            if (this <= 0) return "--/--/----"
+            return runCatching {
+                val instant = Instant.fromEpochMilliseconds(this)
+                val date = instant.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                val day = date.dayOfMonth.toString().padStart(2, '0')
+                val month = date.monthNumber.toString().padStart(2, '0')
+                val year = date.year.toString().padStart(4, '0')
+                "$day/$month/$year"
+            }.getOrElse { "--/--/----" }
         }
     }
 }
