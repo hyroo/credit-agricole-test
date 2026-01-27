@@ -6,6 +6,7 @@ import com.christo.creditagricole.base.MviState
 import com.christo.creditagricole.domain.model.Account
 import com.christo.creditagricole.domain.model.AccountId
 import com.christo.creditagricole.domain.model.BankId
+import com.christo.creditagricole.domain.model.Money
 
 data class AccountListState(
     val isLoading: Boolean = false,
@@ -27,7 +28,8 @@ data class AccountCellUi(
     val isExpanded: Boolean,
     val isLoadingAccounts: Boolean,
     val accounts: List<AccountItemUi>,
-    val accountsError: String?
+    val accountsError: String?,
+    val totalBalance: Money? = null
 )
 
 data class AccountItemUi(
