@@ -4,7 +4,7 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 data class ListRowTrailing(
-    val textGlyph: String? = null // "›", "⌄", etc (ou icône si tu préfères)
+    val textGlyph: String? = null
 )
 
 object ListRowTrailings {

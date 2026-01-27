@@ -48,6 +48,7 @@ kotlin {
 
             // Coroutines
             implementation(libs.coroutines.core)
+            implementation(libs.kotlinx.datetime)
 
             // Ktor
             implementation(libs.ktor.client.core)

@@ -9,14 +9,17 @@ import com.christo.creditagricole.data.network.defaultJson
 import com.christo.creditagricole.data.repository.AccountRepositoryImpl
 import com.christo.creditagricole.data.repository.BankRepositoryImpl
 import com.christo.creditagricole.data.repository.OperationRepositoryImpl
+import com.christo.creditagricole.domain.model.Account
 import com.christo.creditagricole.domain.repository.AccountRepository
+import com.christo.creditagricole.domain.repository.BankRepository
+import com.christo.creditagricole.domain.repository.OperationRepository
 import com.christo.creditagricole.domain.usecase.GetAccountsForBankUseCase
 import com.christo.creditagricole.domain.usecase.GetBanksUseCase
 import com.christo.creditagricole.domain.usecase.GetMockBanksUseCase
 import com.christo.creditagricole.domain.usecase.GetOperationsForAccountUseCase
-import com.christo.creditagricole.domain.repository.BankRepository
-import com.christo.creditagricole.domain.repository.OperationRepository
 import com.christo.creditagricole.presentation.features.accounts.AccountListViewModel
+import com.christo.creditagricole.presentation.features.detail.AccountDetailViewModel
+import com.christo.creditagricole.presentation.features.detail.AccountSelectionStore
 import de.jensklingenberg.ktorfit.Ktorfit
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
@@ -25,7 +28,8 @@ import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
 const val PROPERTY_BASE_URL = "base_url"
-private const val BASE_URL = "https://cdf-test-mobile-default-rtdb.europe-west1.firebasedatabase.app/"
+private const val BASE_URL =
+    "https://cdf-test-mobile-default-rtdb.europe-west1.firebasedatabase.app/"
 
 private val coreModule = module {
     single<DispatcherProvider> { DefaultDispatcherProvider }
@@ -50,12 +54,21 @@ private val domainModule = module {
 }
 
 private val presentationModule = module {
+    single { AccountSelectionStore() }
     single {
         AccountListViewModel(
             dispatcherProvider = get(),
             getBanksUseCase = get(),
             getMockBanksUseCase = get(),
             getAccountsForBankUseCase = get()
+        )
+    }
+    factory { (bankName: String, account: Account) ->
+        AccountDetailViewModel(
+            dispatcherProvider = get(),
+            bankName = bankName,
+            account = account,
+            getOperationsForAccountUseCase = get()
         )
     }
 }
