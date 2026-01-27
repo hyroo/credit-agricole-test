@@ -167,7 +167,7 @@ private fun BankListContent(
                                     bank = bank,
                                     onToggle = { onBankToggled(bank.id) },
                                     onAccountSelected = { account ->
-//                                        onAccountSelected(bank.id, bank.title, account)
+                                        onAccountSelected(bank.id, bank.title, account)
                                     },
                                     modifier = Modifier
                                         .fillMaxWidth()
