@@ -30,9 +30,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.christo.creditagricole.designsystem.components.SectionTitle
 import com.christo.creditagricole.domain.model.Account
 import com.christo.creditagricole.domain.model.BankId
 
@@ -69,7 +68,7 @@ fun AccountListScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text(text = "Banques") }) },
+        topBar = { TopAppBar(title = { Text(text = "Mes Comptes") }) },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         BankListContent(
@@ -181,13 +180,8 @@ private fun SectionHeader(
     title: String,
     modifier: Modifier = Modifier
 ) {
-    Text(
+    SectionTitle(
         text = title,
-        style = MaterialTheme.typography.titleSmall.copy(
-            fontSize = 14.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.primary
-        ),
         modifier = modifier
     )
 }
