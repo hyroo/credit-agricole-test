@@ -21,6 +21,14 @@ class Navigator<T> internal constructor(
         backStack.add(destination)
     }
 
+    fun replaceCurrent(destination: T) {
+        if (backStack.isEmpty()) {
+            backStack.add(destination)
+        } else {
+            backStack[backStack.lastIndex] = destination
+        }
+    }
+
     fun pop(): Boolean {
         if (backStack.size <= 1) return false
         backStack.removeAt(backStack.lastIndex)

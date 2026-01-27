@@ -34,12 +34,15 @@ import androidx.compose.ui.unit.dp
 import com.christo.creditagricole.designsystem.components.SectionTitle
 import com.christo.creditagricole.domain.model.Account
 import com.christo.creditagricole.domain.model.BankId
+import com.christo.creditagricole.presentation.features.navigation.MainBottomBar
+import com.christo.creditagricole.presentation.features.navigation.MainBottomBarDestination
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountListScreen(
     viewModel: AccountListViewModel,
-    onNavigateToAccountDetail: (bankName: String, account: Account) -> Unit
+    onNavigateToAccountDetail: (bankName: String, account: Account) -> Unit,
+    onSelectBottomDestination: (MainBottomBarDestination) -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val state by viewModel.state.collectAsState()
@@ -69,7 +72,13 @@ fun AccountListScreen(
 
     Scaffold(
         topBar = { TopAppBar(title = { Text(text = "Mes Comptes") }) },
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        bottomBar = {
+            MainBottomBar(
+                selected = MainBottomBarDestination.Accounts,
+                onSelected = onSelectBottomDestination
+            )
+        }
     ) { padding ->
         BankListContent(
             state = state,
