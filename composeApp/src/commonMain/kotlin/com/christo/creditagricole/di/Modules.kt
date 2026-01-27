@@ -6,12 +6,16 @@ import com.christo.creditagricole.data.api.BankingApi
 import com.christo.creditagricole.data.network.NetworkClientFactory
 import com.christo.creditagricole.data.network.createBankingApi
 import com.christo.creditagricole.data.network.defaultJson
+import com.christo.creditagricole.data.repository.AccountRepositoryImpl
 import com.christo.creditagricole.data.repository.BankRepositoryImpl
+import com.christo.creditagricole.data.repository.OperationRepositoryImpl
+import com.christo.creditagricole.domain.repository.AccountRepository
 import com.christo.creditagricole.domain.usecase.GetAccountsForBankUseCase
 import com.christo.creditagricole.domain.usecase.GetBanksUseCase
 import com.christo.creditagricole.domain.usecase.GetMockBanksUseCase
 import com.christo.creditagricole.domain.usecase.GetOperationsForAccountUseCase
 import com.christo.creditagricole.domain.repository.BankRepository
+import com.christo.creditagricole.domain.repository.OperationRepository
 import de.jensklingenberg.ktorfit.Ktorfit
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
@@ -33,6 +37,8 @@ private val dataModule = module {
     }
     single<BankingApi> { get<Ktorfit>().createBankingApi() }
     single<BankRepository> { BankRepositoryImpl(api = get()) }
+    single<AccountRepository> { AccountRepositoryImpl(api = get()) }
+    single<OperationRepository> { OperationRepositoryImpl(api = get()) }
 }
 
 private val domainModule = module {
