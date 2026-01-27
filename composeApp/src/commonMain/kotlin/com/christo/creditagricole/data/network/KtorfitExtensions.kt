@@ -3,7 +3,7 @@ package com.christo.creditagricole.data.network
 import com.christo.creditagricole.data.api.BankingApi
 import com.christo.creditagricole.data.dto.AccountDto
 import com.christo.creditagricole.data.dto.AccountsResponseDto
-import com.christo.creditagricole.data.dto.BanksResponseDto
+import com.christo.creditagricole.data.dto.BankDto
 import com.christo.creditagricole.data.dto.OperationDto
 import com.christo.creditagricole.data.dto.OperationsResponseDto
 import de.jensklingenberg.ktorfit.Ktorfit
@@ -24,14 +24,17 @@ fun Ktorfit.createBankingApi(): BankingApi {
         private val client = ktorfit.httpClient
         private val baseUrl = ktorfit.baseUrl.trimEnd('/')
 
-        override suspend fun getBanks(): BanksResponseDto = client
-            .get {
-                url {
-                    takeFrom(baseUrl)
-                    appendPathSegments("banks")
+        override suspend fun getBanks(): List<BankDto> {
+            val response = client
+                .get {
+                    url {
+                        takeFrom(baseUrl)
+                        appendPathSegments("banks.json")
+                    }
                 }
-            }
-            .body()
+            val payload: List<BankDto> = response.body<List<BankDto>>()
+            return payload
+        }
 
         override suspend fun getAccountsForBank(bankId: String): AccountsResponseDto = client
             .get {
@@ -51,14 +54,15 @@ fun Ktorfit.createBankingApi(): BankingApi {
             }
             .body()
 
-        override suspend fun getOperationsForAccount(accountId: String): OperationsResponseDto = client
-            .get {
-                url {
-                    takeFrom(baseUrl)
-                    appendPathSegments("accounts", accountId, "operations")
+        override suspend fun getOperationsForAccount(accountId: String): OperationsResponseDto =
+            client
+                .get {
+                    url {
+                        takeFrom(baseUrl)
+                        appendPathSegments("accounts", accountId, "operations")
+                    }
                 }
-            }
-            .body()
+                .body()
 
         override suspend fun getOperation(operationId: String): OperationDto = client
             .get {

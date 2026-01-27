@@ -11,7 +11,7 @@ class BankRepositoryImpl(
 
     override suspend fun getBanks(): List<Bank> =
         executeCall("Impossible de recuperer les banques") {
-            api.getBanks().banks.map { it.toDomain() }
+            api.getBanks().map { it.toDomain() }
 
         }
 

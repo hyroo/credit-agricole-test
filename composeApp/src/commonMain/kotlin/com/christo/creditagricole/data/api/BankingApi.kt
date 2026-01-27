@@ -2,7 +2,7 @@ package com.christo.creditagricole.data.api
 
 import com.christo.creditagricole.data.dto.AccountDto
 import com.christo.creditagricole.data.dto.AccountsResponseDto
-import com.christo.creditagricole.data.dto.BanksResponseDto
+import com.christo.creditagricole.data.dto.BankDto
 import com.christo.creditagricole.data.dto.OperationDto
 import com.christo.creditagricole.data.dto.OperationsResponseDto
 import de.jensklingenberg.ktorfit.http.GET
@@ -11,7 +11,7 @@ import de.jensklingenberg.ktorfit.http.Path
 interface BankingApi {
 
     @GET("banks.json")
-    suspend fun getBanks(): BanksResponseDto
+    suspend fun getBanks(): List<BankDto>
 
     @GET("banks/{bankId}/accounts")
     suspend fun getAccountsForBank(
