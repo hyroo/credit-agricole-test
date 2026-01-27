@@ -3,7 +3,8 @@ package com.christo.creditagricole.domain.model
 data class Bank(
     val id: BankId,
     val name: String,
-    val countryCode: String
+    val countryCode: String,
+    val isCreditAgricole: Boolean
 ) {
     init {
         require(name.isNotBlank()) { "Bank name cannot be blank." }

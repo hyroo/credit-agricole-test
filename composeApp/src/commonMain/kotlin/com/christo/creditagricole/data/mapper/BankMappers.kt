@@ -31,10 +31,16 @@ internal fun BankDto.toDomain(): Bank = runCatching {
         ?.uppercase()
         ?: DEFAULT_COUNTRY_CODE
 
+    val isCreditAgricole = when (isCaFlag) {
+        null -> inferCreditAgricoleFlag(resolvedName)
+        else -> isCaFlag != 0
+    }
+
     Bank(
         id = BankId(resolvedIdValue),
         name = resolvedName,
-        countryCode = resolvedCountryCode
+        countryCode = resolvedCountryCode,
+        isCreditAgricole = isCreditAgricole
     )
 }.getOrElse { throwable ->
     throw DataMappingException("Impossible de mapper la banque ${id ?: name}", throwable)
@@ -127,6 +133,10 @@ private fun String.slugified(): String {
         .trim('-')
     return if (slug.isNotEmpty()) slug else "bank-${hashCode().absoluteValue}"
 }
+
+private fun inferCreditAgricoleFlag(name: String): Boolean =
+    name.contains("crédit agricole", ignoreCase = true) ||
+            name.contains("ca ", ignoreCase = true)
 
 private fun String.toDomainAccountKind(): AccountKind =
     AccountKind.entries.firstOrNull { it.name.equals(this, ignoreCase = true) } ?: AccountKind.OTHER

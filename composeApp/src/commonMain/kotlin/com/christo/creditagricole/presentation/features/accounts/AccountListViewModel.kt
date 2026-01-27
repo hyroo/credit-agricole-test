@@ -1,0 +1,219 @@
+package com.christo.creditagricole.presentation.features.accounts
+
+import BaseMVIViewModel
+import com.christo.creditagricole.core.DispatcherProvider
+import com.christo.creditagricole.domain.model.Account
+import com.christo.creditagricole.domain.model.Bank
+import com.christo.creditagricole.domain.model.BankId
+import com.christo.creditagricole.domain.usecase.GetAccountsForBankUseCase
+import com.christo.creditagricole.domain.usecase.GetBanksUseCase
+import com.christo.creditagricole.domain.usecase.GetMockBanksUseCase
+
+class AccountListViewModel(
+    dispatcherProvider: DispatcherProvider,
+    private val getBanksUseCase: GetBanksUseCase,
+    private val getMockBanksUseCase: GetMockBanksUseCase,
+    private val getAccountsForBankUseCase: GetAccountsForBankUseCase
+) : BaseMVIViewModel<AccountListIntent, AccountListState, AccountListResult, BankListEffect>(
+    initialState = AccountListState(),
+    reducer = AccountListReducer,
+    dispatcherProvider = dispatcherProvider
+) {
+
+    override suspend fun executeIntent(intent: AccountListIntent): AccountListResult = when (intent) {
+        AccountListIntent.OnAppear,
+        AccountListIntent.OnRefresh -> {
+            loadBanks(forceRefresh = true)
+            AccountListResult.Idle
+        }
+
+        is AccountListIntent.OnBankToggled -> handleBankToggle(intent.bankId)
+
+        is AccountListIntent.OnAccountSelected -> {
+            AccountListResult.NavigateToAccountDetail(
+                bankName = intent.bankName,
+                account = intent.account.account
+            )
+        }
+
+        AccountListIntent.OnNavigationConsumed -> AccountListResult.NavigationConsumed
+
+        AccountListIntent.InternalLoading -> AccountListResult.Loading
+
+        is AccountListIntent.InternalBanksLoaded -> AccountListResult.BanksContent(
+            sections = intent.sections,
+            markLoaded = intent.markLoaded
+        )
+
+        is AccountListIntent.InternalError -> AccountListResult.Error(intent.message)
+
+        is AccountListIntent.InternalAccountsLoading -> AccountListResult.AccountsLoading(intent.bankId)
+
+        is AccountListIntent.InternalAccountsLoaded -> AccountListResult.AccountsContent(
+            bankId = intent.bankId,
+            accounts = intent.accounts
+        )
+
+        is AccountListIntent.InternalAccountsError -> AccountListResult.AccountsError(
+            bankId = intent.bankId,
+            message = intent.message
+        )
+    }
+
+    override suspend fun onEffect(result: AccountListResult): BankListEffect? = when (result) {
+        is AccountListResult.Error -> BankListEffect.ShowError(result.message)
+        is AccountListResult.AccountsError -> BankListEffect.ShowError(result.message)
+        else -> null
+    }
+
+    private suspend fun loadBanks(forceRefresh: Boolean) {
+        if (state.value.isLoading) return
+        if (!forceRefresh && state.value.hasLoaded) return
+
+        dispatch(AccountListIntent.InternalLoading)
+
+        val currentSections = state.value.sections
+        val fallbackSections = runCatching { getMockBanksUseCase() }
+            .map { banks ->
+                val sections = banks.toSections(currentSections)
+                sections
+            }
+            .getOrElse { emptyList() }
+
+        if (fallbackSections.isNotEmpty() && currentSections.isEmpty()) {
+            dispatch(
+                AccountListIntent.InternalBanksLoaded(
+                    sections = fallbackSections,
+                    markLoaded = true
+                )
+            )
+        }
+
+        runCatching { getBanksUseCase() }
+            .map { banks ->
+                val sections = banks.toSections(state.value.sections)
+                sections
+            }
+            .onSuccess { sections ->
+                val filteredSections = sections.filterNot { it.banks.isEmpty() }
+                if (filteredSections.isEmpty()) {
+                    if (fallbackSections.isNotEmpty()) {
+                        dispatch(
+                            AccountListIntent.InternalBanksLoaded(
+                                sections = fallbackSections,
+                                markLoaded = true
+                            )
+                        )
+                    } else {
+                        dispatch(AccountListIntent.InternalError("Aucune banque disponible."))
+                    }
+                } else {
+                    dispatch(
+                        AccountListIntent.InternalBanksLoaded(
+                            sections = filteredSections,
+                            markLoaded = true
+                        )
+                    )
+                }
+            }
+            .onFailure { throwable ->
+                if (fallbackSections.isNotEmpty()) {
+                    dispatch(
+                        AccountListIntent.InternalBanksLoaded(
+                            sections = fallbackSections,
+                            markLoaded = true
+                        )
+                    )
+                } else {
+                    val message =
+                        throwable.message.orEmpty().ifEmpty { "Une erreur s'est produite." }
+                    dispatch(AccountListIntent.InternalError(message))
+                }
+            }
+    }
+
+    private suspend fun handleBankToggle(bankId: BankId): AccountListResult {
+        val bankCell = state.value.sections
+            .flatMap(BankSectionUi::banks)
+            .firstOrNull { it.id == bankId } ?: return AccountListResult.Idle
+
+        return if (bankCell.isExpanded) {
+            AccountListResult.ToggleExpanded(bankId)
+        } else {
+            if (bankCell.accounts.isEmpty()) {
+                dispatch(AccountListIntent.InternalAccountsLoading(bankId))
+                fetchAccounts(bankId)
+                AccountListResult.Idle
+            } else {
+                AccountListResult.ToggleExpanded(bankId)
+            }
+        }
+    }
+
+    private suspend fun fetchAccounts(bankId: BankId) {
+        runCatching {
+            getAccountsForBankUseCase(
+                GetAccountsForBankUseCase.Params(bankId = bankId)
+            )
+        }
+            .onSuccess { accounts ->
+                val accountItems = accounts
+                    .sortedBy { it.name.lowercase() }
+                    .map { it.toUi() }
+                dispatch(
+                    AccountListIntent.InternalAccountsLoaded(
+                        bankId = bankId,
+                        accounts = accountItems
+                    )
+                )
+            }
+            .onFailure { throwable ->
+                val message =
+                    throwable.message.orEmpty().ifEmpty { "Impossible de charger les comptes." }
+                dispatch(
+                    AccountListIntent.InternalAccountsError(
+                        bankId = bankId,
+                        message = message
+                    )
+                )
+            }
+    }
+
+    private fun List<Bank>.toSections(existingSections: List<BankSectionUi>): List<BankSectionUi> {
+        val existingBanks = existingSections
+            .flatMap { it.banks }
+            .associateBy { it.id }
+
+        val (creditAgricole, others) = partition { it.isCreditAgricole }
+
+        fun buildSection(title: String, source: List<Bank>): BankSectionUi? {
+            if (source.isEmpty()) return null
+            val banks = source
+                .sortedBy { it.name.lowercase() }
+                .map { bank ->
+                    val existing = existingBanks[bank.id]
+                    AccountCellUi(
+                        id = bank.id,
+                        title = bank.name,
+                        isCreditAgricole = bank.isCreditAgricole,
+                        isExpanded = existing?.isExpanded ?: false,
+                        isLoadingAccounts = existing?.isLoadingAccounts ?: false,
+                        accounts = existing?.accounts ?: emptyList(),
+                        accountsError = existing?.accountsError
+                    )
+                }
+            return BankSectionUi(title = title, banks = banks)
+        }
+
+        return buildList {
+            buildSection("Banques Crédit Agricole", creditAgricole)?.let(::add)
+            buildSection("Autres banques", others)?.let(::add)
+        }
+    }
+
+    private fun Account.toUi(): AccountItemUi = AccountItemUi(
+        id = id,
+        title = name,
+        account = this
+    )
+}

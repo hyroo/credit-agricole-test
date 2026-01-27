@@ -29,7 +29,7 @@ fun Theme(
         LocalDimens provides dimens
     ) {
         MaterialTheme(
-            colorScheme = m3,   // ✅ c’est ça qui fixe background/surface
+            colorScheme = m3,
             content = content
         )
     }

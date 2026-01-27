@@ -41,11 +41,6 @@ data class OperationDto(
 )
 
 @Serializable
-data class BanksResponseDto(
-    @SerialName("banks") val banks: List<BankDto>
-)
-
-@Serializable
 data class AccountsResponseDto(
     @SerialName("accounts") val accounts: List<AccountDto>
 )
