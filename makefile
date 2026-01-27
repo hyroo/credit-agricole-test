@@ -17,6 +17,7 @@ all:
 .PHONY: clean
 clean:
 	./gradlew clean
+	./gradlew clean --refresh-dependencies
 
 .PHONY: release
 release: clean

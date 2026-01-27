@@ -16,6 +16,7 @@ import com.christo.creditagricole.domain.usecase.GetMockBanksUseCase
 import com.christo.creditagricole.domain.usecase.GetOperationsForAccountUseCase
 import com.christo.creditagricole.domain.repository.BankRepository
 import com.christo.creditagricole.domain.repository.OperationRepository
+import com.christo.creditagricole.presentation.features.accounts.AccountListViewModel
 import de.jensklingenberg.ktorfit.Ktorfit
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
@@ -49,7 +50,14 @@ private val domainModule = module {
 }
 
 private val presentationModule = module {
-
+    single {
+        AccountListViewModel(
+            dispatcherProvider = get(),
+            getBanksUseCase = get(),
+            getMockBanksUseCase = get(),
+            getAccountsForBankUseCase = get()
+        )
+    }
 }
 
 val sharedModules: List<Module> = listOf(

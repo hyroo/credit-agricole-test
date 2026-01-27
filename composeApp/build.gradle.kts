@@ -14,7 +14,7 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
-    
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -60,6 +60,7 @@ kotlin {
 
             // DI
             implementation(libs.koin.core)
+            implementation(libs.koin.compose)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
