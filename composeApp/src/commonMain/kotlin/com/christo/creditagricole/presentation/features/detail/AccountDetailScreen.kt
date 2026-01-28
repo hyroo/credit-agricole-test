@@ -27,10 +27,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.christo.creditagricole.designsystem.components.AccountSummaryCard
 import com.christo.creditagricole.designsystem.components.NavigationTopBar
 import com.christo.creditagricole.designsystem.components.OperationCard
+import com.christo.creditagricole.designsystem.theme.ThemeDefaults
 import creditagricole.composeapp.generated.resources.Res
 import creditagricole.composeapp.generated.resources.account_detail_empty_operations
 import creditagricole.composeapp.generated.resources.account_detail_executed_on
@@ -100,21 +100,22 @@ private fun AccountDetailContent(
     padding: PaddingValues,
     onRetry: () -> Unit
 ) {
+    val d = ThemeDefaults.dimens
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(padding)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(horizontal = d.spacing16, vertical = d.spacing12)
             .background(MaterialTheme.colorScheme.surfaceVariant)
     ) {
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(d.spacing12))
         AccountSummaryCard(
             balanceText = state.balance,
             accountKindText = state.accountKind,
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier.padding(horizontal = d.spacing16)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(d.spacing16))
 
         val showSpinner =
             state.operations.isEmpty() && state.errorMessage == null && (!state.hasLoaded || state.isLoading)
@@ -147,7 +148,7 @@ private fun AccountDetailContent(
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp)
+                    .padding(bottom = d.spacing8)
             )
         }
 
@@ -165,9 +166,10 @@ private fun EmptyOperations(
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        val d = ThemeDefaults.dimens
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(d.spacing12)
         ) {
             Text(
                 text = errorMessage ?: stringResource(Res.string.account_detail_empty_operations),
@@ -185,6 +187,7 @@ private fun OperationsList(
     operations: List<OperationItemUi>,
     modifier: Modifier = Modifier
 ) {
+    val d = ThemeDefaults.dimens
     if (operations.isEmpty()) {
         Box(
             modifier = modifier.fillMaxWidth(),
@@ -200,8 +203,8 @@ private fun OperationsList(
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(bottom = 24.dp)
+        verticalArrangement = Arrangement.spacedBy(d.spacing12),
+        contentPadding = PaddingValues(bottom = d.spacing24)
     ) {
         itemsIndexed(operations, key = { index, item -> "${item.id.value}_$index" }) { _, operation ->
             val dateText = stringResource(Res.string.account_detail_executed_on, operation.executedAt)

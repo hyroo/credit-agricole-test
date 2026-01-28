@@ -17,10 +17,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import creditagricole.composeapp.generated.resources.Res
 import creditagricole.composeapp.generated.resources.common_collapse
 import creditagricole.composeapp.generated.resources.common_expand
+import com.christo.creditagricole.designsystem.theme.ThemeDefaults
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 
@@ -33,10 +33,11 @@ fun BankAccountsCard(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val d = ThemeDefaults.dimens
     SurfaceCard(
         modifier = modifier,
         color = MaterialTheme.colorScheme.surface,
-        contentPadding = PaddingValues(0.dp)
+        contentPadding = PaddingValues(d.spacingNone)
     ) {
         val collapseDescription = stringResource(Res.string.common_collapse)
         val expandDescription = stringResource(Res.string.common_expand)
@@ -45,7 +46,7 @@ fun BankAccountsCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClick = onToggle)
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                    .padding(horizontal = d.spacing16, vertical = d.spacing16),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -74,7 +75,7 @@ fun BankAccountsCard(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                        .padding(horizontal = d.spacing16, vertical = d.spacing12),
                     content = content
                 )
             }

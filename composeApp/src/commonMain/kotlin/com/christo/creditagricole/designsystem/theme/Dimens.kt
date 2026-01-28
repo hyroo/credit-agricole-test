@@ -2,13 +2,26 @@ package com.christo.creditagricole.designsystem.theme
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 
 @Immutable
 data class Dimens(
-    val itemSpacing: Dp = 8.dp,
-    val itemPadding: Dp = 12.dp,
-    val itemCorner: Dp = 12.dp,
-    val sectionSpacing: Dp = 14.dp,
-    val screenPadding: Dp = 16.dp,
+    val spacingNone: Dp,
+    val spacing2: Dp,
+    val spacing4: Dp,
+    val spacing6: Dp,
+    val spacing8: Dp,
+    val spacing10: Dp,
+    val spacing12: Dp,
+    val spacing14: Dp,
+    val spacing16: Dp,
+    val spacing20: Dp,
+    val spacing24: Dp,
+
+    val itemSpacing: Dp,
+    val itemPadding: Dp,
+    val itemCorner: Dp,
+    val sectionSpacing: Dp,
+    val screenPadding: Dp,
+    val bulletSize: Dp,
+    val strokeThin: Dp,
 )

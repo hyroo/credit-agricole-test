@@ -15,7 +15,6 @@ import creditagricole.composeapp.generated.resources.account_list_load_accounts_
 import creditagricole.composeapp.generated.resources.account_list_section_credit_agricole
 import creditagricole.composeapp.generated.resources.account_list_section_others
 import kotlinx.coroutines.CancellationException
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.getString
 
 class AccountListViewModel(

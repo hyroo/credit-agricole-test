@@ -24,12 +24,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.christo.creditagricole.designsystem.components.AccountListItem
 import com.christo.creditagricole.designsystem.components.BankAccountsCard
 import com.christo.creditagricole.designsystem.components.Divider
 import com.christo.creditagricole.designsystem.components.NavigationTopBar
 import com.christo.creditagricole.designsystem.components.SectionTitle
+import com.christo.creditagricole.designsystem.theme.ThemeDefaults
 import com.christo.creditagricole.domain.model.Account
 import com.christo.creditagricole.domain.model.BankId
 import com.christo.creditagricole.presentation.features.navigation.MainBottomBar
@@ -40,7 +40,6 @@ import creditagricole.composeapp.generated.resources.account_list_empty_accounts
 import creditagricole.composeapp.generated.resources.account_list_empty_banks
 import creditagricole.composeapp.generated.resources.account_list_title
 import creditagricole.composeapp.generated.resources.common_retry
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -140,9 +139,10 @@ private fun BankListContent(
             }
 
             else -> {
+                val d = ThemeDefaults.dimens
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 16.dp, horizontal = 16.dp)
+                    contentPadding = PaddingValues(vertical = d.spacing16, horizontal = d.spacing16)
                 ) {
                     state.sections.forEach { section ->
                         if (section.banks.isNotEmpty()) {
@@ -151,7 +151,7 @@ private fun BankListContent(
                                     title = section.title,
                                     modifier = Modifier.fillMaxWidth()
                                 )
-                                Spacer(modifier = Modifier.height(12.dp))
+                                Spacer(modifier = Modifier.height(d.spacing12))
                             }
                             items(section.banks, key = { it.id.value }) { bank ->
                                 BankCollapsibleCell(
@@ -162,7 +162,7 @@ private fun BankListContent(
                                     },
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(vertical = 8.dp)
+                                        .padding(vertical = d.spacing8)
                                 )
                             }
                         }
@@ -179,15 +179,16 @@ private fun EmptyBanks(
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val d = ThemeDefaults.dimens
     Column(
-        modifier = modifier.padding(24.dp),
+        modifier = modifier.padding(d.spacing24),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val message = errorMessage ?: stringResource(Res.string.account_list_empty_banks)
         Text(text = message, style = MaterialTheme.typography.bodyLarge)
         Button(
             onClick = onRefresh,
-            modifier = Modifier.padding(top = 16.dp)
+            modifier = Modifier.padding(top = d.spacing16)
         ) {
             Text(stringResource(Res.string.common_retry))
         }
@@ -219,13 +220,14 @@ private fun BankCollapsibleCell(
         onToggle = onToggle,
         modifier = modifier
     ) {
+        val d = ThemeDefaults.dimens
         when {
             bank.isLoadingAccounts -> {
                 CircularProgressIndicator(
                     modifier = Modifier
-                        .padding(top = 12.dp)
+                        .padding(top = d.spacing12)
                         .align(Alignment.CenterHorizontally),
-                    strokeWidth = 2.dp
+                    strokeWidth = d.strokeThin
                 )
             }
 
@@ -251,14 +253,14 @@ private fun BankCollapsibleCell(
                         Divider(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 8.dp)
+                                .padding(vertical = d.spacing8)
                         )
                     }
                     AccountListItem(
                         title = account.title,
                         balanceText = account.account.balance.formatAsCurrency(),
                         onClick = { onAccountSelected(account) },
-                        modifier = Modifier.padding(vertical = 4.dp)
+                        modifier = Modifier.padding(vertical = d.spacing4)
                     )
                 }
             }

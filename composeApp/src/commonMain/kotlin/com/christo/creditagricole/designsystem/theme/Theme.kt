@@ -13,13 +13,13 @@ val LocalColors = staticCompositionLocalOf<Colors> {
     error("LocalColors not provided. Wrap your UI with Theme().")
 }
 
-val LocalDimens = staticCompositionLocalOf { Dimens() } // ou DsDimens si ton nom
+val LocalDimens = staticCompositionLocalOf { DimensScheme.Default }
 
 @Composable
 fun Theme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     colors: Colors = if (darkTheme) ColorScheme.Dark else ColorScheme.Light,
-    dimens: Dimens = Dimens(),
+    dimens: Dimens = DimensScheme.Default,
     content: @Composable () -> Unit
 ) {
     val m3 = colors.toMaterial3(darkTheme)

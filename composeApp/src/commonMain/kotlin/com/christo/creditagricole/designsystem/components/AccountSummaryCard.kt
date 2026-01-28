@@ -10,9 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
+import com.christo.creditagricole.designsystem.theme.ThemeDefaults
 
 @Composable
 fun AccountSummaryCard(
@@ -21,19 +21,20 @@ fun AccountSummaryCard(
     modifier: Modifier = Modifier,
     headlineFontWeight: FontWeight = FontWeight.Bold
 ) {
+    val d = ThemeDefaults.dimens
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         color = Color.Transparent,
-        tonalElevation = 0.dp,
-        shadowElevation = 0.dp
+        tonalElevation = d.spacingNone,
+        shadowElevation = d.spacingNone
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 24.dp, horizontal = 20.dp),
+                .padding(vertical = d.spacing24, horizontal = d.spacing20),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(d.spacing8)
         ) {
             Text(
                 text = balanceText,

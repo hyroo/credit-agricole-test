@@ -15,7 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import com.christo.creditagricole.designsystem.theme.ThemeDefaults
 
 @Composable
 fun OperationCard(
@@ -25,17 +25,19 @@ fun OperationCard(
     modifier: Modifier = Modifier,
     typeLabel: String? = null
 ) {
+    val d = ThemeDefaults.dimens
+
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 0.dp,
-        shadowElevation = 0.dp
+        tonalElevation = d.spacingNone,
+        shadowElevation = d.spacingNone
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(all = 16.dp)
+                .padding(all = d.spacing16)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -54,7 +56,7 @@ fun OperationCard(
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(d.spacing6))
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -64,7 +66,7 @@ fun OperationCard(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(d.spacing12))
                 }
                 Text(
                     text = dateText,

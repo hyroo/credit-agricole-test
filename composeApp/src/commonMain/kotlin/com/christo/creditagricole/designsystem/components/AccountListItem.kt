@@ -13,7 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import com.christo.creditagricole.designsystem.theme.ThemeDefaults
 
 @Composable
 fun AccountListItem(
@@ -22,13 +22,15 @@ fun AccountListItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val d = ThemeDefaults.dimens
+
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(vertical = 8.dp),
+            .padding(vertical = d.spacing8),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(d.spacing12)
     ) {
         Text(
             text = title,

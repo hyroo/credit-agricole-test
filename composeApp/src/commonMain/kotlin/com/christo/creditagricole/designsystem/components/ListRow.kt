@@ -40,8 +40,8 @@ fun ListRow(
             .fillMaxWidth()
             .clip(RoundedCornerShape(d.itemCorner))
             .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
-        tonalElevation = 0.dp,
-        shadowElevation = 0.dp,
+        tonalElevation = d.spacingNone,
+        shadowElevation = d.spacingNone,
         color = MaterialTheme.colorScheme.background
     ) {
         Row(
@@ -53,11 +53,11 @@ fun ListRow(
             if (leadingBullet) {
                 Box(
                     modifier = Modifier
-                        .size(10.dp)
+                        .size(d.bulletSize)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
                 )
-                Spacer(Modifier.width(10.dp))
+                Spacer(Modifier.width(d.spacing10))
             }
 
             if (titleIndentDp > 0) Spacer(Modifier.width(titleIndentDp.dp))
@@ -72,7 +72,7 @@ fun ListRow(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
             )
 
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(d.spacing10))
 
             Text(
                 text = value,
@@ -80,7 +80,7 @@ fun ListRow(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
             )
 
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(d.spacing8))
 
             trailing.textGlyph?.let { glyph ->
                 Text(
