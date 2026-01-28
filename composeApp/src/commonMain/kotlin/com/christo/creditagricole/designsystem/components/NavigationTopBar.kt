@@ -18,10 +18,11 @@ import androidx.compose.material3.Text
 @Composable
 fun NavigationTopBar(
     title: String,
-    onBackClick: () -> Unit,
+    onBackClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
     navigationIcon: ImageVector = Icons.Filled.ChevronLeft,
     navigationContentDescription: String? = null,
+    containerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surfaceVariant,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
     TopAppBar(
@@ -36,14 +37,19 @@ fun NavigationTopBar(
             )
         },
         navigationIcon = {
-            IconButton(onClick = onBackClick) {
-                Icon(
-                    imageVector = navigationIcon,
-                    contentDescription = navigationContentDescription,
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
+            if (onBackClick != null) {
+                IconButton(onClick = onBackClick) {
+                    Icon(
+                        imageVector = navigationIcon,
+                        contentDescription = navigationContentDescription,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
         },
-        actions = actions
+        actions = actions,
+        colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
+            containerColor = containerColor
+        )
     )
 }

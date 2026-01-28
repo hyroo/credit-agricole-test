@@ -1,5 +1,6 @@
 package com.christo.creditagricole.presentation.features.detail
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -74,6 +75,7 @@ fun AccountDetailScreen(
                 navigationContentDescription = "Retour"
             )
         },
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         AccountDetailContent(
@@ -95,6 +97,7 @@ private fun AccountDetailContent(
             .fillMaxSize()
             .padding(padding)
             .padding(horizontal = 16.dp, vertical = 12.dp)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Spacer(modifier = Modifier.height(12.dp))
         AccountSummaryCard(
