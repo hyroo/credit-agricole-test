@@ -5,7 +5,10 @@ import com.christo.creditagricole.domain.model.BankId
 import com.christo.creditagricole.domain.model.Money
 
 object AccountListReducer : MviReducer<AccountListState, AccountListResult> {
-    override fun reduce(currentState: AccountListState, result: AccountListResult): AccountListState =
+    override fun reduce(
+        currentState: AccountListState,
+        result: AccountListResult
+    ): AccountListState =
         when (result) {
             AccountListResult.Idle -> currentState
 
@@ -94,9 +97,11 @@ private fun List<BankSectionUi>.updateBank(
 private fun List<AccountItemUi>.totalBalanceOrNull(): Money? {
     if (isEmpty()) return null
     val currency = first().account.balance.currencyCode
+    val symbol = first().account.balance.currencySymbol
     val totalMinor = sumOf { it.account.balance.amountInMinor }
     return Money(
         amountInMinor = totalMinor,
-        currencyCode = currency
+        currencyCode = currency,
+        currencySymbolOverride = symbol
     )
 }

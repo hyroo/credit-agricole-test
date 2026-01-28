@@ -12,7 +12,7 @@ fun Money.formatAsCurrency(): String {
         append('.')
         append(minor.toString().padStart(2, '0'))
         append(' ')
-        append(currencyCode)
+        append(displayCurrency)
     }
     return if (amountInMinor < 0) "-$amount" else amount
 }

@@ -28,45 +28,46 @@ class AccountListViewModel(
     dispatcherProvider = dispatcherProvider
 ) {
 
-    override suspend fun executeIntent(intent: AccountListIntent): AccountListResult = when (intent) {
-        AccountListIntent.OnAppear,
-        AccountListIntent.OnRefresh -> {
-            loadBanks(forceRefresh = true)
-            AccountListResult.Idle
-        }
+    override suspend fun executeIntent(intent: AccountListIntent): AccountListResult =
+        when (intent) {
+            AccountListIntent.OnAppear,
+            AccountListIntent.OnRefresh -> {
+                loadBanks(forceRefresh = true)
+                AccountListResult.Idle
+            }
 
-        is AccountListIntent.OnBankToggled -> handleBankToggle(intent.bankId)
+            is AccountListIntent.OnBankToggled -> handleBankToggle(intent.bankId)
 
-        is AccountListIntent.OnAccountSelected -> {
-            AccountListResult.NavigateToAccountDetail(
-                bankName = intent.bankName,
-                account = intent.account.account
+            is AccountListIntent.OnAccountSelected -> {
+                AccountListResult.NavigateToAccountDetail(
+                    bankName = intent.bankName,
+                    account = intent.account.account
+                )
+            }
+
+            AccountListIntent.OnNavigationConsumed -> AccountListResult.NavigationConsumed
+
+            AccountListIntent.InternalLoading -> AccountListResult.Loading
+
+            is AccountListIntent.InternalBanksLoaded -> AccountListResult.BanksContent(
+                sections = intent.sections,
+                markLoaded = intent.markLoaded
+            )
+
+            is AccountListIntent.InternalError -> AccountListResult.Error(intent.message)
+
+            is AccountListIntent.InternalAccountsLoading -> AccountListResult.AccountsLoading(intent.bankId)
+
+            is AccountListIntent.InternalAccountsLoaded -> AccountListResult.AccountsContent(
+                bankId = intent.bankId,
+                accounts = intent.accounts
+            )
+
+            is AccountListIntent.InternalAccountsError -> AccountListResult.AccountsError(
+                bankId = intent.bankId,
+                message = intent.message
             )
         }
-
-        AccountListIntent.OnNavigationConsumed -> AccountListResult.NavigationConsumed
-
-        AccountListIntent.InternalLoading -> AccountListResult.Loading
-
-        is AccountListIntent.InternalBanksLoaded -> AccountListResult.BanksContent(
-            sections = intent.sections,
-            markLoaded = intent.markLoaded
-        )
-
-        is AccountListIntent.InternalError -> AccountListResult.Error(intent.message)
-
-        is AccountListIntent.InternalAccountsLoading -> AccountListResult.AccountsLoading(intent.bankId)
-
-        is AccountListIntent.InternalAccountsLoaded -> AccountListResult.AccountsContent(
-            bankId = intent.bankId,
-            accounts = intent.accounts
-        )
-
-        is AccountListIntent.InternalAccountsError -> AccountListResult.AccountsError(
-            bankId = intent.bankId,
-            message = intent.message
-        )
-    }
 
     override suspend fun onEffect(result: AccountListResult): BankListEffect? = when (result) {
         is AccountListResult.Error -> BankListEffect.ShowError(result.message)

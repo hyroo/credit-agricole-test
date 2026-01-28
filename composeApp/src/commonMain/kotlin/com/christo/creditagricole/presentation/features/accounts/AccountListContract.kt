@@ -51,6 +51,7 @@ sealed interface AccountListIntent : MviIntent {
         val bankName: String,
         val account: AccountItemUi
     ) : AccountListIntent
+
     data object OnNavigationConsumed : AccountListIntent
 
     data object InternalLoading : AccountListIntent
@@ -61,7 +62,9 @@ sealed interface AccountListIntent : MviIntent {
 
     data class InternalError(val message: String) : AccountListIntent
     data class InternalAccountsLoading(val bankId: BankId) : AccountListIntent
-    data class InternalAccountsLoaded(val bankId: BankId, val accounts: List<AccountItemUi>) : AccountListIntent
+    data class InternalAccountsLoaded(val bankId: BankId, val accounts: List<AccountItemUi>) :
+        AccountListIntent
+
     data class InternalAccountsError(val bankId: BankId, val message: String) : AccountListIntent
 }
 
@@ -76,9 +79,13 @@ sealed interface AccountListResult {
     data class Error(val message: String) : AccountListResult
     data class ToggleExpanded(val bankId: BankId) : AccountListResult
     data class AccountsLoading(val bankId: BankId) : AccountListResult
-    data class AccountsContent(val bankId: BankId, val accounts: List<AccountItemUi>) : AccountListResult
+    data class AccountsContent(val bankId: BankId, val accounts: List<AccountItemUi>) :
+        AccountListResult
+
     data class AccountsError(val bankId: BankId, val message: String) : AccountListResult
-    data class NavigateToAccountDetail(val bankName: String, val account: Account) : AccountListResult
+    data class NavigateToAccountDetail(val bankName: String, val account: Account) :
+        AccountListResult
+
     data object NavigationConsumed : AccountListResult
 }
 

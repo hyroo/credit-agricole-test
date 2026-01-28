@@ -4,7 +4,10 @@ import com.christo.creditagricole.base.MviReducer
 
 
 object AccountDetailReducer : MviReducer<AccountDetailState, AccountDetailResult> {
-    override fun reduce(currentState: AccountDetailState, result: AccountDetailResult): AccountDetailState =
+    override fun reduce(
+        currentState: AccountDetailState,
+        result: AccountDetailResult
+    ): AccountDetailState =
         when (result) {
             AccountDetailResult.Idle -> currentState
 

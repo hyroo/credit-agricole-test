@@ -13,9 +13,8 @@ import creditagricole.composeapp.generated.resources.account_detail_load_operati
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import kotlin.math.abs
 import org.jetbrains.compose.resources.getString
-import org.jetbrains.compose.resources.ExperimentalResourceApi
+import kotlin.math.abs
 
 class AccountDetailViewModel(
     dispatcherProvider: DispatcherProvider,
@@ -123,7 +122,7 @@ class AccountDetailViewModel(
             val cents = absolute % 100
             val centsString = cents.toString().padStart(2, '0')
             val sign = if (money.amountInMinor < 0) "-" else ""
-            return "$sign$units.$centsString ${money.currencyCode}"
+            return "$sign$units.$centsString ${money.displayCurrency}"
         }
 
         private fun Long.toFormattedDate(): String {
