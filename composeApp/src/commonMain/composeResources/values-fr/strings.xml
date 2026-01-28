@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="common_back">Retour</string>
+    <string name="common_retry">Reessayer</string>
+    <string name="common_unknown_date">--/--/----</string>
+    <string name="common_collapse">Réduire</string>
+    <string name="common_expand">Déplier</string>
+
+    <string name="account_list_title">Mes comptes</string>
+    <string name="account_list_empty_banks">Aucune banque disponible.</string>
+    <string name="account_list_empty_accounts">Aucun compte disponible.</string>
+    <string name="account_list_load_accounts_error">Impossible de charger les comptes.</string>
+    <string name="account_list_generic_error">Une erreur s'est produite.</string>
+    <string name="account_list_section_credit_agricole">Banques Crédit Agricole</string>
+    <string name="account_list_section_others">Autres banques</string>
+
+    <string name="account_detail_title">Mes comptes</string>
+    <string name="account_detail_empty_operations">Aucune operation a afficher.</string>
+    <string name="account_detail_load_operations_error">Impossible de charger les operations.</string>
+    <string name="account_detail_credit_label">Crédit</string>
+    <string name="account_detail_executed_on">Le %s</string>
+
+    <string name="simulation_title">Simulation</string>
+    <string name="simulation_placeholder">Contenu Simulation à venir</string>
+
+    <string name="play_title">À vous de jouer</string>
+    <string name="play_placeholder">Contenu À vous de jouer à venir</string>
+
+    <string name="navigation_accounts">Mes Comptes</string>
+    <string name="navigation_simulation">Simulation</string>
+    <string name="navigation_play">À vous de jouer</string>
+    <string name="navigation_accounts_icon">M</string>
+    <string name="navigation_simulation_icon">S</string>
+    <string name="navigation_play_icon">A</string>
+
+    <string name="data_fetch_banks_error">Impossible de recuperer les banques</string>
+    <string name="data_fetch_accounts_error">Impossible de recuperer les comptes pour %s</string>
+    <string name="data_fetch_account_error">Impossible de recuperer le compte %s</string>
+    <string name="data_fetch_operations_error">Impossible de recuperer les operations pour %s</string>
+    <string name="data_fetch_operation_error">Impossible de recuperer l'operation %s</string>
+</resources>

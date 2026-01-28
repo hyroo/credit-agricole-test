@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import com.christo.creditagricole.designsystem.theme.ThemeDefaults
 import com.christo.creditagricole.designsystem.components.Divider
 import com.christo.creditagricole.designsystem.components.SectionTitle
 
@@ -16,9 +16,10 @@ fun <T> ListSectionItems(
     showDividers: Boolean = true,
     itemContent: @Composable (T) -> Unit
 ) {
+    val d = ThemeDefaults.dimens
     Column(modifier) {
         SectionTitle(title)
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(d.spacing8))
 
         items.forEachIndexed { index, item ->
             itemContent(item)

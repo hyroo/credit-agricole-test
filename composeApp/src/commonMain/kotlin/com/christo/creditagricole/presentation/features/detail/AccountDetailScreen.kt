@@ -5,28 +5,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -35,10 +27,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import com.christo.creditagricole.designsystem.components.AccountSummaryCard
+import com.christo.creditagricole.designsystem.components.NavigationTopBar
+import com.christo.creditagricole.designsystem.components.OperationCard
+import com.christo.creditagricole.designsystem.theme.ThemeDefaults
+import creditagricole.composeapp.generated.resources.Res
+import creditagricole.composeapp.generated.resources.account_detail_empty_operations
+import creditagricole.composeapp.generated.resources.account_detail_executed_on
+import creditagricole.composeapp.generated.resources.account_detail_title
+import creditagricole.composeapp.generated.resources.common_back
+import creditagricole.composeapp.generated.resources.common_retry
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountDetailScreen(
     viewModel: AccountDetailViewModel,
@@ -76,25 +77,13 @@ fun AccountDetailScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Mes comptes",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = { viewModel.dispatch(AccountDetailIntent.OnBackClicked) }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.ChevronLeft,
-                            contentDescription = "Retour"
-                        )
-                    }
-                }
+            NavigationTopBar(
+                title = stringResource(Res.string.account_detail_title),
+                onBackClick = { viewModel.dispatch(AccountDetailIntent.OnBackClicked) },
+                navigationContentDescription = stringResource(Res.string.common_back)
             )
         },
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         AccountDetailContent(
@@ -111,35 +100,22 @@ private fun AccountDetailContent(
     padding: PaddingValues,
     onRetry: () -> Unit
 ) {
+    val d = ThemeDefaults.dimens
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(padding)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(horizontal = d.spacing16, vertical = d.spacing12)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
     ) {
-        Spacer(modifier = Modifier.height(12.dp))
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = state.balance,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = state.accountKind,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        Spacer(modifier = Modifier.height(d.spacing12))
+        AccountSummaryCard(
+            balanceText = state.balance,
+            accountKindText = state.accountKind,
+            modifier = Modifier.padding(horizontal = d.spacing16)
+        )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(d.spacing16))
 
         val showSpinner =
             state.operations.isEmpty() && state.errorMessage == null && (!state.hasLoaded || state.isLoading)
@@ -172,7 +148,7 @@ private fun AccountDetailContent(
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp)
+                    .padding(bottom = d.spacing8)
             )
         }
 
@@ -190,16 +166,17 @@ private fun EmptyOperations(
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        val d = ThemeDefaults.dimens
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(d.spacing12)
         ) {
             Text(
-                text = errorMessage ?: "Aucune operation a afficher.",
+                text = errorMessage ?: stringResource(Res.string.account_detail_empty_operations),
                 style = MaterialTheme.typography.bodyLarge
             )
             Button(onClick = onRetry) {
-                Text(text = "Reessayer")
+                Text(text = stringResource(Res.string.common_retry))
             }
         }
     }
@@ -210,13 +187,14 @@ private fun OperationsList(
     operations: List<OperationItemUi>,
     modifier: Modifier = Modifier
 ) {
+    val d = ThemeDefaults.dimens
     if (operations.isEmpty()) {
         Box(
             modifier = modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Aucune operation a afficher.",
+                text = stringResource(Res.string.account_detail_empty_operations),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -225,59 +203,17 @@ private fun OperationsList(
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(bottom = 24.dp)
+        verticalArrangement = Arrangement.spacedBy(d.spacing12),
+        contentPadding = PaddingValues(bottom = d.spacing24)
     ) {
-        itemsIndexed(
-            operations,
-            key = { index, item -> "${item.id.value}_$index" }) { _, operation ->
-            OperationRow(operation = operation)
-        }
-    }
-}
-
-@Composable
-private fun OperationRow(operation: OperationItemUi) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = MaterialTheme.shapes.medium
-            )
-            .padding(16.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = operation.description,
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
-                text = operation.amount,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        Spacer(modifier = Modifier.height(4.dp))
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (operation.typeLabel.isNotBlank()) {
-                Text(
-                    text = operation.typeLabel,
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-            }
-            Text(
-                text = "Le ${operation.executedAt}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+        itemsIndexed(operations, key = { index, item -> "${item.id.value}_$index" }) { _, operation ->
+            val dateText = stringResource(Res.string.account_detail_executed_on, operation.executedAt)
+            val typeLabel = operation.typeLabelRes?.let { stringResource(it) }
+            OperationCard(
+                title = operation.description,
+                amountText = operation.amount,
+                dateText = dateText,
+                typeLabel = typeLabel
             )
         }
     }

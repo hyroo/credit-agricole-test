@@ -8,7 +8,14 @@ import com.christo.creditagricole.domain.model.BankId
 import com.christo.creditagricole.domain.usecase.GetAccountsForBankUseCase
 import com.christo.creditagricole.domain.usecase.GetBanksUseCase
 import com.christo.creditagricole.domain.usecase.GetMockBanksUseCase
+import creditagricole.composeapp.generated.resources.Res
+import creditagricole.composeapp.generated.resources.account_list_empty_banks
+import creditagricole.composeapp.generated.resources.account_list_generic_error
+import creditagricole.composeapp.generated.resources.account_list_load_accounts_error
+import creditagricole.composeapp.generated.resources.account_list_section_credit_agricole
+import creditagricole.composeapp.generated.resources.account_list_section_others
 import kotlinx.coroutines.CancellationException
+import org.jetbrains.compose.resources.getString
 
 class AccountListViewModel(
     dispatcherProvider: DispatcherProvider,
@@ -73,11 +80,15 @@ class AccountListViewModel(
 
         dispatch(AccountListIntent.InternalLoading)
 
+        val emptyBanksMessage = getString(Res.string.account_list_empty_banks)
+        val genericErrorMessage = getString(Res.string.account_list_generic_error)
+        val creditAgricoleTitle = getString(Res.string.account_list_section_credit_agricole)
+        val othersTitle = getString(Res.string.account_list_section_others)
+
         val currentSections = state.value.sections
         val fallbackSections = runCatching { getMockBanksUseCase() }
             .map { banks ->
-                val sections = banks.toSections(currentSections)
-                sections
+                banks.toSections(currentSections, creditAgricoleTitle, othersTitle)
             }
             .getOrElse { emptyList() }
 
@@ -88,43 +99,44 @@ class AccountListViewModel(
             )
         }
 
-        runCatching { getBanksUseCase() }
+        val remoteSectionsResult = runCatching { getBanksUseCase() }
             .map { banks ->
-                val sections = banks.toSections(state.value.sections)
-                sections
+                banks.toSections(state.value.sections, creditAgricoleTitle, othersTitle)
             }
-            .onSuccess { sections ->
-                val filteredSections = sections.filterNot { it.banks.isEmpty() }
-                if (filteredSections.isEmpty()) {
-                    if (fallbackSections.isNotEmpty()) {
-                        dispatch(
-                            AccountListIntent.InternalBanksLoaded(
-                                sections = fallbackSections,
-                                markLoaded = true
-                            )
-                        )
-                    } else {
-                        dispatch(AccountListIntent.InternalError("Aucune banque disponible."))
-                    }
-                } else {
-                    handleSectionsLoaded(
-                        sections = filteredSections,
-                        markLoaded = true
-                    )
-                }
-            }
-            .onFailure { throwable ->
+
+        remoteSectionsResult.onSuccess { sections ->
+            val filteredSections = sections.filterNot { it.banks.isEmpty() }
+            if (filteredSections.isEmpty()) {
                 if (fallbackSections.isNotEmpty()) {
-                    handleSectionsLoaded(
-                        sections = fallbackSections,
-                        markLoaded = true
+                    dispatch(
+                        AccountListIntent.InternalBanksLoaded(
+                            sections = fallbackSections,
+                            markLoaded = true
+                        )
                     )
                 } else {
-                    val message =
-                        throwable.message.orEmpty().ifEmpty { "Une erreur s'est produite." }
-                    dispatch(AccountListIntent.InternalError(message))
+                    dispatch(AccountListIntent.InternalError(emptyBanksMessage))
                 }
+            } else {
+                handleSectionsLoaded(
+                    sections = filteredSections,
+                    markLoaded = true
+                )
             }
+        }
+
+        remoteSectionsResult.onFailure { throwable ->
+            if (fallbackSections.isNotEmpty()) {
+                handleSectionsLoaded(
+                    sections = fallbackSections,
+                    markLoaded = true
+                )
+            } else {
+                val message =
+                    throwable.message.orEmpty().ifEmpty { genericErrorMessage }
+                dispatch(AccountListIntent.InternalError(message))
+            }
+        }
     }
 
     private suspend fun handleBankToggle(bankId: BankId): AccountListResult {
@@ -146,35 +158,42 @@ class AccountListViewModel(
     }
 
     private suspend fun fetchAccounts(bankId: BankId) {
-        runCatching {
+        val result = runCatching {
             getAccountsForBankUseCase(
                 GetAccountsForBankUseCase.Params(bankId = bankId)
             )
         }
-            .onSuccess { accounts ->
-                val accountItems = accounts
-                    .sortedBy { it.name.lowercase() }
-                    .map { it.toUi() }
-                dispatch(
-                    AccountListIntent.InternalAccountsLoaded(
-                        bankId = bankId,
-                        accounts = accountItems
-                    )
+
+        result.onSuccess { accounts ->
+            val accountItems = accounts
+                .sortedBy { it.name.lowercase() }
+                .map { it.toUi() }
+            dispatch(
+                AccountListIntent.InternalAccountsLoaded(
+                    bankId = bankId,
+                    accounts = accountItems
                 )
-            }
-            .onFailure { throwable ->
-                val message =
-                    throwable.message.orEmpty().ifEmpty { "Impossible de charger les comptes." }
-                dispatch(
-                    AccountListIntent.InternalAccountsError(
-                        bankId = bankId,
-                        message = message
-                    )
+            )
+        }
+
+        if (result.isFailure) {
+            val throwable = result.exceptionOrNull()
+            val fallback = getString(Res.string.account_list_load_accounts_error)
+            val message = throwable?.message.orEmpty().ifEmpty { fallback }
+            dispatch(
+                AccountListIntent.InternalAccountsError(
+                    bankId = bankId,
+                    message = message
                 )
-            }
+            )
+        }
     }
 
-    private fun List<Bank>.toSections(existingSections: List<BankSectionUi>): List<BankSectionUi> {
+    private fun List<Bank>.toSections(
+        existingSections: List<BankSectionUi>,
+        creditAgricoleTitle: String,
+        othersTitle: String
+    ): List<BankSectionUi> {
         val existingBanks = existingSections
             .flatMap { it.banks }
             .associateBy { it.id }
@@ -202,8 +221,8 @@ class AccountListViewModel(
         }
 
         return buildList {
-            buildSection("Banques Crédit Agricole", creditAgricole)?.let(::add)
-            buildSection("Autres banques", others)?.let(::add)
+            buildSection(creditAgricoleTitle, creditAgricole)?.let(::add)
+            buildSection(othersTitle, others)?.let(::add)
         }
     }
 

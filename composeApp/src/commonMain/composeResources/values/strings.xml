@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="common_back">Back</string>
+    <string name="common_retry">Retry</string>
+    <string name="common_unknown_date">--/--/----</string>
+    <string name="common_collapse">Collapse</string>
+    <string name="common_expand">Expand</string>
+
+    <string name="account_list_title">My accounts</string>
+    <string name="account_list_empty_banks">No bank available.</string>
+    <string name="account_list_empty_accounts">No account available.</string>
+    <string name="account_list_load_accounts_error">Unable to load accounts.</string>
+    <string name="account_list_generic_error">An error occurred.</string>
+    <string name="account_list_section_credit_agricole">Crédit Agricole banks</string>
+    <string name="account_list_section_others">Other banks</string>
+
+    <string name="account_detail_title">My accounts</string>
+    <string name="account_detail_empty_operations">No operation to display.</string>
+    <string name="account_detail_load_operations_error">Unable to load operations.</string>
+    <string name="account_detail_credit_label">Credit</string>
+    <string name="account_detail_executed_on">On %s</string>
+
+    <string name="simulation_title">Simulation</string>
+    <string name="simulation_placeholder">Simulation content coming soon</string>
+
+    <string name="play_title">Your turn</string>
+    <string name="play_placeholder">Play content coming soon</string>
+
+    <string name="navigation_accounts">My Accounts</string>
+    <string name="navigation_simulation">Simulation</string>
+    <string name="navigation_play">Your turn</string>
+    <string name="navigation_accounts_icon">M</string>
+    <string name="navigation_simulation_icon">S</string>
+    <string name="navigation_play_icon">A</string>
+
+    <string name="data_fetch_banks_error">Unable to fetch banks</string>
+    <string name="data_fetch_accounts_error">Unable to fetch accounts for %s</string>
+    <string name="data_fetch_account_error">Unable to fetch account %s</string>
+    <string name="data_fetch_operations_error">Unable to fetch operations for %s</string>
+    <string name="data_fetch_operation_error">Unable to fetch operation %s</string>
+</resources>

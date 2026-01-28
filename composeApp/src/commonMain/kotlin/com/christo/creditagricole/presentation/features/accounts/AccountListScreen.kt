@@ -1,30 +1,22 @@
 package com.christo.creditagricole.presentation.features.accounts
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -32,20 +24,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
+import com.christo.creditagricole.designsystem.components.AccountListItem
+import com.christo.creditagricole.designsystem.components.BankAccountsCard
+import com.christo.creditagricole.designsystem.components.Divider
+import com.christo.creditagricole.designsystem.components.NavigationTopBar
 import com.christo.creditagricole.designsystem.components.SectionTitle
+import com.christo.creditagricole.designsystem.theme.ThemeDefaults
 import com.christo.creditagricole.domain.model.Account
 import com.christo.creditagricole.domain.model.BankId
 import com.christo.creditagricole.presentation.features.navigation.MainBottomBar
 import com.christo.creditagricole.presentation.features.navigation.MainBottomBarDestination
 import com.christo.creditagricole.presentation.utils.formatAsCurrency
+import creditagricole.composeapp.generated.resources.Res
+import creditagricole.composeapp.generated.resources.account_list_empty_accounts
+import creditagricole.composeapp.generated.resources.account_list_empty_banks
+import creditagricole.composeapp.generated.resources.account_list_title
+import creditagricole.composeapp.generated.resources.common_retry
+import org.jetbrains.compose.resources.stringResource
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountListScreen(
     viewModel: AccountListViewModel,
@@ -80,17 +76,12 @@ fun AccountListScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                modifier = Modifier.height(72.dp),
-                title = {
-                    Text(
-                        text = "Mes Comptes",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+            NavigationTopBar(
+                title = stringResource(Res.string.account_list_title),
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
             )
         },
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         bottomBar = {
             MainBottomBar(
@@ -148,19 +139,19 @@ private fun BankListContent(
             }
 
             else -> {
+                val d = ThemeDefaults.dimens
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 16.dp, horizontal = 16.dp)
+                    contentPadding = PaddingValues(vertical = d.spacing16, horizontal = d.spacing16)
                 ) {
                     state.sections.forEach { section ->
                         if (section.banks.isNotEmpty()) {
                             item(key = "${section.title}_header") {
                                 SectionHeader(
                                     title = section.title,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 8.dp, bottom = 4.dp)
+                                    modifier = Modifier.fillMaxWidth()
                                 )
+                                Spacer(modifier = Modifier.height(d.spacing12))
                             }
                             items(section.banks, key = { it.id.value }) { bank ->
                                 BankCollapsibleCell(
@@ -171,7 +162,7 @@ private fun BankListContent(
                                     },
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(vertical = 8.dp)
+                                        .padding(vertical = d.spacing8)
                                 )
                             }
                         }
@@ -188,17 +179,18 @@ private fun EmptyBanks(
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val d = ThemeDefaults.dimens
     Column(
-        modifier = modifier.padding(24.dp),
+        modifier = modifier.padding(d.spacing24),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val message = errorMessage ?: "Aucune banque disponible."
+        val message = errorMessage ?: stringResource(Res.string.account_list_empty_banks)
         Text(text = message, style = MaterialTheme.typography.bodyLarge)
         Button(
             onClick = onRefresh,
-            modifier = Modifier.padding(top = 16.dp)
+            modifier = Modifier.padding(top = d.spacing16)
         ) {
-            Text("Reessayer")
+            Text(stringResource(Res.string.common_retry))
         }
     }
 }
@@ -221,98 +213,55 @@ private fun BankCollapsibleCell(
     onAccountSelected: (AccountItemUi) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    BankAccountsCard(
+        title = bank.title,
+        balanceText = bank.totalBalance?.formatAsCurrency(),
+        expanded = bank.isExpanded,
+        onToggle = onToggle,
         modifier = modifier
-            .clickable(onClick = onToggle),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = bank.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f)
-                )
-                bank.totalBalance?.let { money ->
-                    Text(
-                        text = money.formatAsCurrency(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(end = 12.dp)
-                    )
-                }
-                Icon(
-                    imageVector = if (bank.isExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                    contentDescription = if (bank.isExpanded) "Réduire" else "Déplier"
+        val d = ThemeDefaults.dimens
+        when {
+            bank.isLoadingAccounts -> {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .padding(top = d.spacing12)
+                        .align(Alignment.CenterHorizontally),
+                    strokeWidth = d.strokeThin
                 )
             }
 
-            if (bank.isExpanded) {
-                if (bank.isLoadingAccounts) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .padding(top = 12.dp)
-                            .size(24.dp),
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    when {
-                        bank.accountsError != null -> {
-                            Text(
-                                text = bank.accountsError,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.padding(top = 12.dp)
-                            )
-                        }
+            bank.accountsError != null -> {
+                Text(
+                    text = bank.accountsError,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
 
-                        bank.accounts.isEmpty() -> {
-                            Text(
-                                text = "Aucun compte disponible.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(top = 12.dp)
-                            )
-                        }
+            bank.accounts.isEmpty() -> {
+                Text(
+                    text = stringResource(Res.string.account_list_empty_accounts),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
 
-                        else -> {
-                            bank.accounts.forEachIndexed { index, account ->
-                                HorizontalDivider(
-                                    modifier = Modifier.padding(
-                                        top = if (index == 0) 12.dp else 0.dp,
-                                        bottom = 12.dp
-                                    ),
-                                    color = MaterialTheme.colorScheme.outlineVariant
-                                )
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable(onClick = { onAccountSelected(account) })
-                                        .padding(start = 16.dp, top = 6.dp, bottom = 6.dp)
-                                ) {
-                                    Text(
-                                        text = account.title,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                    Text(
-                                        text = account.account.balance.formatAsCurrency(),
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                    Icon(
-                                        imageVector = Icons.Filled.ChevronRight,
-                                        contentDescription = "Consulter le détail",
-                                        modifier = Modifier.padding(start = 12.dp)
-                                    )
-                                }
-                            }
-                        }
+            else -> {
+                bank.accounts.forEachIndexed { index, account ->
+                    if (index > 0) {
+                        Divider(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = d.spacing8)
+                        )
                     }
+                    AccountListItem(
+                        title = account.title,
+                        balanceText = account.account.balance.formatAsCurrency(),
+                        onClick = { onAccountSelected(account) },
+                        modifier = Modifier.padding(vertical = d.spacing4)
+                    )
                 }
             }
         }

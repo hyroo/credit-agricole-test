@@ -6,6 +6,10 @@ import com.christo.creditagricole.domain.model.Account
 import com.christo.creditagricole.domain.model.AccountId
 import com.christo.creditagricole.domain.model.BankId
 import com.christo.creditagricole.domain.repository.AccountRepository
+import creditagricole.composeapp.generated.resources.Res
+import creditagricole.composeapp.generated.resources.data_fetch_account_error
+import creditagricole.composeapp.generated.resources.data_fetch_accounts_error
+import org.jetbrains.compose.resources.getString
 
 class AccountRepositoryImpl(
     private val api: BankingApi
@@ -13,7 +17,7 @@ class AccountRepositoryImpl(
 
     override suspend fun getAccounts(bankId: BankId): List<Account> =
         runCatching {
-            executeCall("Impossible de recuperer les comptes pour ${bankId.value}") {
+            executeCall(getString(Res.string.data_fetch_accounts_error, bankId.value)) {
                 api.getAccountsForBank(bankId.value).accounts.map { it.toDomain(bankId) }
             }
         }.fold(
@@ -22,7 +26,7 @@ class AccountRepositoryImpl(
         )
 
     override suspend fun getAccount(accountId: AccountId): Account? =
-        executeCall("Impossible de recuperer le compte ${accountId.value}") {
+        executeCall(getString(Res.string.data_fetch_account_error, accountId.value)) {
             api.getAccount(accountId.value).toDomain()
         }
 }
