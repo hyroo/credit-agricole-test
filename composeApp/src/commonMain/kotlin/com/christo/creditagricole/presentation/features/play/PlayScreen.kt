@@ -13,6 +13,11 @@ import androidx.compose.ui.Modifier
 import com.christo.creditagricole.designsystem.components.NavigationTopBar
 import com.christo.creditagricole.presentation.features.navigation.MainBottomBar
 import com.christo.creditagricole.presentation.features.navigation.MainBottomBarDestination
+import creditagricole.composeapp.generated.resources.Res
+import creditagricole.composeapp.generated.resources.play_placeholder
+import creditagricole.composeapp.generated.resources.play_title
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun PlayScreen(
@@ -23,7 +28,7 @@ fun PlayScreen(
     Scaffold(
         topBar = {
             NavigationTopBar(
-                title = "À vous de jouer",
+                title = stringResource(Res.string.play_title),
                 containerColor = backgroundColor
             )
         },
@@ -42,7 +47,7 @@ fun PlayScreen(
                 .padding(padding),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "Contenu À vous de jouer à venir")
+            Text(text = stringResource(Res.string.play_placeholder))
         }
     }
 }

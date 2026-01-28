@@ -4,6 +4,7 @@ import com.christo.creditagricole.base.MviEffect
 import com.christo.creditagricole.base.MviIntent
 import com.christo.creditagricole.base.MviState
 import com.christo.creditagricole.domain.model.OperationId
+import org.jetbrains.compose.resources.StringResource
 
 data class AccountDetailState(
     val bankName: String,
@@ -21,7 +22,7 @@ data class OperationItemUi(
     val id: OperationId,
     val description: String,
     val amount: String,
-    val typeLabel: String,
+    val typeLabelRes: StringResource?,
     val executedAt: String
 )
 

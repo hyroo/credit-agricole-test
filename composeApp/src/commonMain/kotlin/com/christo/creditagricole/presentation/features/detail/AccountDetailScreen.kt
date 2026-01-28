@@ -31,6 +31,14 @@ import androidx.compose.ui.unit.dp
 import com.christo.creditagricole.designsystem.components.AccountSummaryCard
 import com.christo.creditagricole.designsystem.components.NavigationTopBar
 import com.christo.creditagricole.designsystem.components.OperationCard
+import creditagricole.composeapp.generated.resources.Res
+import creditagricole.composeapp.generated.resources.account_detail_empty_operations
+import creditagricole.composeapp.generated.resources.account_detail_executed_on
+import creditagricole.composeapp.generated.resources.account_detail_title
+import creditagricole.composeapp.generated.resources.common_back
+import creditagricole.composeapp.generated.resources.common_retry
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 @Composable
 fun AccountDetailScreen(
@@ -70,9 +78,9 @@ fun AccountDetailScreen(
     Scaffold(
         topBar = {
             NavigationTopBar(
-                title = "Mes comptes",
+                title = stringResource(Res.string.account_detail_title),
                 onBackClick = { viewModel.dispatch(AccountDetailIntent.OnBackClicked) },
-                navigationContentDescription = "Retour"
+                navigationContentDescription = stringResource(Res.string.common_back)
             )
         },
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -162,11 +170,11 @@ private fun EmptyOperations(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = errorMessage ?: "Aucune operation a afficher.",
+                text = errorMessage ?: stringResource(Res.string.account_detail_empty_operations),
                 style = MaterialTheme.typography.bodyLarge
             )
             Button(onClick = onRetry) {
-                Text(text = "Reessayer")
+                Text(text = stringResource(Res.string.common_retry))
             }
         }
     }
@@ -183,7 +191,7 @@ private fun OperationsList(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Aucune operation a afficher.",
+                text = stringResource(Res.string.account_detail_empty_operations),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -196,11 +204,13 @@ private fun OperationsList(
         contentPadding = PaddingValues(bottom = 24.dp)
     ) {
         itemsIndexed(operations, key = { index, item -> "${item.id.value}_$index" }) { _, operation ->
+            val dateText = stringResource(Res.string.account_detail_executed_on, operation.executedAt)
+            val typeLabel = operation.typeLabelRes?.let { stringResource(it) }
             OperationCard(
                 title = operation.description,
                 amountText = operation.amount,
-                dateText = "Le ${operation.executedAt}",
-                typeLabel = operation.typeLabel
+                dateText = dateText,
+                typeLabel = typeLabel
             )
         }
     }

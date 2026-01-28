@@ -35,6 +35,13 @@ import com.christo.creditagricole.domain.model.BankId
 import com.christo.creditagricole.presentation.features.navigation.MainBottomBar
 import com.christo.creditagricole.presentation.features.navigation.MainBottomBarDestination
 import com.christo.creditagricole.presentation.utils.formatAsCurrency
+import creditagricole.composeapp.generated.resources.Res
+import creditagricole.composeapp.generated.resources.account_list_empty_accounts
+import creditagricole.composeapp.generated.resources.account_list_empty_banks
+import creditagricole.composeapp.generated.resources.account_list_title
+import creditagricole.composeapp.generated.resources.common_retry
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun AccountListScreen(
@@ -71,7 +78,7 @@ fun AccountListScreen(
     Scaffold(
         topBar = {
             NavigationTopBar(
-                title = "Mes comptes",
+                title = stringResource(Res.string.account_list_title),
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
             )
         },
@@ -176,13 +183,13 @@ private fun EmptyBanks(
         modifier = modifier.padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val message = errorMessage ?: "Aucune banque disponible."
+        val message = errorMessage ?: stringResource(Res.string.account_list_empty_banks)
         Text(text = message, style = MaterialTheme.typography.bodyLarge)
         Button(
             onClick = onRefresh,
             modifier = Modifier.padding(top = 16.dp)
         ) {
-            Text("Reessayer")
+            Text(stringResource(Res.string.common_retry))
         }
     }
 }
@@ -232,7 +239,7 @@ private fun BankCollapsibleCell(
 
             bank.accounts.isEmpty() -> {
                 Text(
-                    text = "Aucun compte disponible.",
+                    text = stringResource(Res.string.account_list_empty_accounts),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

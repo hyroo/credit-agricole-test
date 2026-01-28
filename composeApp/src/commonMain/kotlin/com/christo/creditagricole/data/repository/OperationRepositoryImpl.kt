@@ -6,6 +6,11 @@ import com.christo.creditagricole.domain.model.AccountId
 import com.christo.creditagricole.domain.model.Operation
 import com.christo.creditagricole.domain.model.OperationId
 import com.christo.creditagricole.domain.repository.OperationRepository
+import creditagricole.composeapp.generated.resources.Res
+import creditagricole.composeapp.generated.resources.data_fetch_operation_error
+import creditagricole.composeapp.generated.resources.data_fetch_operations_error
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.getString
 
 class OperationRepositoryImpl(
     private val api: BankingApi
@@ -13,7 +18,7 @@ class OperationRepositoryImpl(
 
     override suspend fun getOperations(accountId: AccountId): List<Operation> =
         runCatching {
-            executeCall("Impossible de recuperer les operations pour ${accountId.value}") {
+            executeCall(getString(Res.string.data_fetch_operations_error, accountId.value)) {
                 api.getOperationsForAccount(accountId.value).operations.map { it.toDomain(accountId) }
             }
         }.fold(
@@ -22,7 +27,7 @@ class OperationRepositoryImpl(
         )
 
     override suspend fun getOperation(operationId: OperationId): Operation? =
-        executeCall("Impossible de recuperer l'operation ${operationId.value}") {
+        executeCall(getString(Res.string.data_fetch_operation_error, operationId.value)) {
             api.getOperation(operationId.value).toDomain()
         }
 }

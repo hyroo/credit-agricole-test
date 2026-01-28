@@ -18,6 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import creditagricole.composeapp.generated.resources.Res
+import creditagricole.composeapp.generated.resources.common_collapse
+import creditagricole.composeapp.generated.resources.common_expand
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun BankAccountsCard(
@@ -33,6 +38,8 @@ fun BankAccountsCard(
         color = MaterialTheme.colorScheme.surface,
         contentPadding = PaddingValues(0.dp)
     ) {
+        val collapseDescription = stringResource(Res.string.common_collapse)
+        val expandDescription = stringResource(Res.string.common_expand)
         Column {
             Row(
                 modifier = Modifier
@@ -57,7 +64,7 @@ fun BankAccountsCard(
                 }
                 Icon(
                     imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                    contentDescription = if (expanded) "Réduire" else "Déplier",
+                    contentDescription = if (expanded) collapseDescription else expandDescription,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

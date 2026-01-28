@@ -6,11 +6,16 @@ import com.christo.creditagricole.domain.model.Account
 import com.christo.creditagricole.domain.model.Money
 import com.christo.creditagricole.domain.model.Operation
 import com.christo.creditagricole.domain.model.OperationType
+import com.christo.creditagricole.domain.usecase.GetOperationsForAccountUseCase
+import creditagricole.composeapp.generated.resources.Res
+import creditagricole.composeapp.generated.resources.account_detail_credit_label
+import creditagricole.composeapp.generated.resources.account_detail_load_operations_error
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import com.christo.creditagricole.domain.usecase.GetOperationsForAccountUseCase
 import kotlin.math.abs
+import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 class AccountDetailViewModel(
     dispatcherProvider: DispatcherProvider,
@@ -62,7 +67,7 @@ class AccountDetailViewModel(
         if (state.value.isLoading && !force) return
 
         dispatch(AccountDetailIntent.InternalLoading)
-        runCatching {
+        val result = runCatching {
             getOperationsForAccountUseCase(
                 GetOperationsForAccountUseCase.Params(accountId = accountId)
             )
@@ -75,23 +80,24 @@ class AccountDetailViewModel(
                     )
                     .map { it.toUi() }
             }
-            .onSuccess { operations ->
-                dispatch(AccountDetailIntent.InternalOperationsLoaded(operations))
-            }
-            .onFailure { throwable ->
-                val message =
-                    throwable.message.orEmpty().ifEmpty { "Impossible de charger les operations." }
-                dispatch(AccountDetailIntent.InternalError(message))
-            }
+        result.onSuccess { operations ->
+            dispatch(AccountDetailIntent.InternalOperationsLoaded(operations))
+        }
+        if (result.isFailure) {
+            val throwable = result.exceptionOrNull()
+            val fallback = getString(Res.string.account_detail_load_operations_error)
+            val message = throwable?.message.orEmpty().ifEmpty { fallback }
+            dispatch(AccountDetailIntent.InternalError(message))
+        }
     }
 
     private fun Operation.toUi(): OperationItemUi = OperationItemUi(
         id = id,
         description = description,
         amount = formatMoney(amount),
-        typeLabel = when (type) {
-            OperationType.CREDIT -> "Crédit"
-            OperationType.DEBIT -> ""
+        typeLabelRes = when (type) {
+            OperationType.CREDIT -> Res.string.account_detail_credit_label
+            OperationType.DEBIT -> null
         },
         executedAt = executedAtEpochMillis.toFormattedDate()
     )
@@ -121,7 +127,7 @@ class AccountDetailViewModel(
         }
 
         private fun Long.toFormattedDate(): String {
-            if (this <= 0) return "--/--/----"
+            if (this <= 0) return UNKNOWN_DATE
             return runCatching {
                 val instant = Instant.fromEpochMilliseconds(this)
                 val date = instant.toLocalDateTime(TimeZone.currentSystemDefault()).date
@@ -129,7 +135,9 @@ class AccountDetailViewModel(
                 val month = date.monthNumber.toString().padStart(2, '0')
                 val year = date.year.toString().padStart(4, '0')
                 "$day/$month/$year"
-            }.getOrElse { "--/--/----" }
+            }.getOrElse { UNKNOWN_DATE }
         }
+
+        private const val UNKNOWN_DATE = "--/--/----"
     }
 }

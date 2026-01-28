@@ -13,6 +13,11 @@ import androidx.compose.ui.Modifier
 import com.christo.creditagricole.designsystem.components.NavigationTopBar
 import com.christo.creditagricole.presentation.features.navigation.MainBottomBar
 import com.christo.creditagricole.presentation.features.navigation.MainBottomBarDestination
+import creditagricole.composeapp.generated.resources.Res
+import creditagricole.composeapp.generated.resources.simulation_placeholder
+import creditagricole.composeapp.generated.resources.simulation_title
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SimulationScreen(
@@ -23,7 +28,7 @@ fun SimulationScreen(
     Scaffold(
         topBar = {
             NavigationTopBar(
-                title = "Simulation",
+                title = stringResource(Res.string.simulation_title),
                 containerColor = backgroundColor
             )
         },
@@ -42,7 +47,7 @@ fun SimulationScreen(
                 .padding(padding),
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "Contenu Simulation à venir")
+            Text(text = stringResource(Res.string.simulation_placeholder))
         }
     }
 }
