@@ -43,8 +43,9 @@ La liste des comptes est segmentée entre le Crédit Agricole et les autres banq
 3. Choisir un simulateur (ARM64) puis `⌘R`.
 
 ### Tests
-Exécuter l’ensemble des tests multiplateformes :  
-`./gradlew :composeApp:check`
+- Couche complète (common + Android) : `./gradlew :composeApp:check`
+- Domain uniquement (use cases, modèles) : `./gradlew :composeApp:testDebugUnitTest --tests "com.christo.creditagricole.domain.*"`
+- Data uniquement (mappers, helpers dépôt) : `./gradlew :composeApp:testDebugUnitTest --tests "com.christo.creditagricole.data.*"`
 
 ---
 
@@ -133,14 +134,6 @@ Exécuter l’ensemble des tests multiplateformes :
 | Ktorfit | 2.7.2 | DSL type-safe pour Ktor |
 | Koin | 4.1.1 | Injection de dépendances |
 | kotlinx.serialization | 1.7.x | JSON |
-
----
-
-## Roadmap / TODO
-- Implémenter `BankRepository.getMockBanks()` pour fournir un fallback hors-ligne.
-- Ajouter des tests unitaires sur les use cases et le reducer.
-- Gérer l’invalidation du cache `banks.json` (pull-to-refresh, TTL).
-- Ajouter des aperçus Compose (Preview) supplémentaires et des tests UI.
 
 ---
 

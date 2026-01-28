@@ -16,7 +16,6 @@ import com.christo.creditagricole.presentation.features.navigation.MainBottomBar
 import creditagricole.composeapp.generated.resources.Res
 import creditagricole.composeapp.generated.resources.play_placeholder
 import creditagricole.composeapp.generated.resources.play_title
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

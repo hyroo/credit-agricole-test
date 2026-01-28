@@ -38,7 +38,6 @@ import creditagricole.composeapp.generated.resources.account_detail_title
 import creditagricole.composeapp.generated.resources.common_back
 import creditagricole.composeapp.generated.resources.common_retry
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 @Composable
 fun AccountDetailScreen(
@@ -206,8 +205,11 @@ private fun OperationsList(
         verticalArrangement = Arrangement.spacedBy(d.spacing12),
         contentPadding = PaddingValues(bottom = d.spacing24)
     ) {
-        itemsIndexed(operations, key = { index, item -> "${item.id.value}_$index" }) { _, operation ->
-            val dateText = stringResource(Res.string.account_detail_executed_on, operation.executedAt)
+        itemsIndexed(
+            operations,
+            key = { index, item -> "${item.id.value}_$index" }) { _, operation ->
+            val dateText =
+                stringResource(Res.string.account_detail_executed_on, operation.executedAt)
             val typeLabel = operation.typeLabelRes?.let { stringResource(it) }
             OperationCard(
                 title = operation.description,

@@ -1,6 +1,7 @@
 package com.christo.creditagricole.presentation.features.detail
 
 import com.christo.creditagricole.domain.model.OperationId
+import org.jetbrains.compose.resources.StringResource
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -41,15 +42,7 @@ class AccountDetailReducerTest {
             hasLoaded = false,
             operations = emptyList()
         )
-        val operations = listOf(
-            OperationItemUi(
-                id = OperationId("op-1"),
-                description = "Operation 1",
-                amount = "10.00 EUR",
-                typeLabel = "Crédit",
-                executedAt = "01/01/2024"
-            )
-        )
+        val operations = listOf(operation())
 
         val newState = AccountDetailReducer.reduce(
             initialState,
@@ -109,7 +102,7 @@ class AccountDetailReducerTest {
         bankName: String = "Bank",
         accountName: String = "Account",
         accountKind: String = "Checking",
-        balance: String = "100.00 EUR",
+        balance: String = "100.00 €",
         operations: List<OperationItemUi> = emptyList(),
         isLoading: Boolean = false,
         errorMessage: String? = null,
@@ -125,5 +118,18 @@ class AccountDetailReducerTest {
         errorMessage = errorMessage,
         hasLoaded = hasLoaded,
         navigationTarget = navigationTarget
+    )
+    private fun operation(
+        id: String = "op-1",
+        description: String = "Operation 1",
+        amount: String = "10.00 €",
+        typeLabelRes: StringResource? = null,
+        executedAt: String = "01/01/2024"
+    ): OperationItemUi = OperationItemUi(
+        id = OperationId(id),
+        description = description,
+        amount = amount,
+        typeLabelRes = typeLabelRes,
+        executedAt = executedAt
     )
 }

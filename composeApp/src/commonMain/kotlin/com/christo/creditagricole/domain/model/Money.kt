@@ -4,8 +4,8 @@ import kotlin.math.abs
 
 data class Money(
     val amountInMinor: Long,
-    val currencyCode: String
-    // amount stored in minor units (e.g. cents) to avoid floating point issues
+    val currencyCode: String,
+    private val currencySymbolOverride: String? = null
 ) {
     init {
         require(currencyCode.length == 3 && currencyCode.all { it.isLetter() }) {
@@ -14,7 +14,18 @@ data class Money(
         require(currencyCode == currencyCode.uppercase()) {
             "Currency code must use upper-case letters."
         }
+        currencySymbolOverride?.let {
+            require(it.isNotBlank()) { "Currency symbol override must not be blank." }
+        }
     }
+
+    private val normalizedSymbolOverride = currencySymbolOverride?.trim()?.takeIf { it.isNotEmpty() }
+
+    val currencySymbol: String?
+        get() = normalizedSymbolOverride ?: currencySymbolMap[currencyCode]
+
+    val displayCurrency: String
+        get() = currencySymbol ?: currencyCode
 
     val isPositive: Boolean get() = amountInMinor > 0
     val isNegative: Boolean get() = amountInMinor < 0
@@ -23,4 +34,11 @@ data class Money(
     fun negate(): Money = copy(amountInMinor = -amountInMinor)
 
     fun absolute(): Money = copy(amountInMinor = abs(amountInMinor))
+
+    companion object {
+        private val currencySymbolMap = mapOf(
+            "EUR" to "€",
+            "USD" to "$"
+        )
+    }
 }

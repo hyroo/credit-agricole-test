@@ -7,10 +7,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.christo.creditagricole.designsystem.theme.Theme
 import com.christo.creditagricole.presentation.features.accounts.AccountListScreen
 import com.christo.creditagricole.presentation.features.accounts.AccountListViewModel
-import com.christo.creditagricole.presentation.features.navigation.MainBottomBarDestination
 import com.christo.creditagricole.presentation.features.detail.AccountDetailScreen
 import com.christo.creditagricole.presentation.features.detail.AccountDetailViewModel
 import com.christo.creditagricole.presentation.features.detail.AccountSelectionStore
+import com.christo.creditagricole.presentation.features.navigation.MainBottomBarDestination
 import com.christo.creditagricole.presentation.features.navigation.NavigationTarget
 import com.christo.creditagricole.presentation.features.navigation.rememberNavigator
 import com.christo.creditagricole.presentation.features.play.PlayScreen

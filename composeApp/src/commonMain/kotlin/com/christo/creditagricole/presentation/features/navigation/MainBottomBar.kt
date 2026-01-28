@@ -10,7 +10,6 @@ import creditagricole.composeapp.generated.resources.navigation_play
 import creditagricole.composeapp.generated.resources.navigation_play_icon
 import creditagricole.composeapp.generated.resources.navigation_simulation
 import creditagricole.composeapp.generated.resources.navigation_simulation_icon
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 
 enum class MainBottomBarDestination {

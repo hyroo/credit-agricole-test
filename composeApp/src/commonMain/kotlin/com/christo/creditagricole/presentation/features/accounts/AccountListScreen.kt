@@ -24,14 +24,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import com.christo.creditagricole.designsystem.components.AccountListItem
 import com.christo.creditagricole.designsystem.components.BankAccountsCard
 import com.christo.creditagricole.designsystem.components.Divider
 import com.christo.creditagricole.designsystem.components.NavigationTopBar
 import com.christo.creditagricole.designsystem.components.SectionTitle
+import com.christo.creditagricole.designsystem.theme.Theme
 import com.christo.creditagricole.designsystem.theme.ThemeDefaults
 import com.christo.creditagricole.domain.model.Account
+import com.christo.creditagricole.domain.model.AccountId
+import com.christo.creditagricole.domain.model.AccountKind
 import com.christo.creditagricole.domain.model.BankId
+import com.christo.creditagricole.domain.model.Money
 import com.christo.creditagricole.presentation.features.navigation.MainBottomBar
 import com.christo.creditagricole.presentation.features.navigation.MainBottomBarDestination
 import com.christo.creditagricole.presentation.utils.formatAsCurrency
@@ -172,6 +177,130 @@ private fun BankListContent(
         }
     }
 }
+
+@Preview(name = "Loading", showBackground = true)
+@Composable
+private fun AccountListLoadingPreview() {
+    Theme {
+        BankListContent(
+            state = AccountListState(isLoading = true),
+            padding = PaddingValues(),
+            onRefresh = {},
+            onBankToggled = {},
+            onAccountSelected = { _, _, _ -> }
+        )
+    }
+}
+
+@Preview(name = "Content", showBackground = true)
+@Composable
+private fun AccountListContentPreview() {
+    Theme {
+        BankListContent(
+            state = sampleContentState(),
+            padding = PaddingValues(),
+            onRefresh = {},
+            onBankToggled = {},
+            onAccountSelected = { _, _, _ -> }
+        )
+    }
+}
+
+@Preview(name = "Empty Error", showBackground = true)
+@Composable
+private fun AccountListEmptyPreview() {
+    Theme {
+        BankListContent(
+            state = AccountListState(
+                hasLoaded = true,
+                errorMessage = "Impossible de charger les banques",
+                sections = emptyList()
+            ),
+            padding = PaddingValues(),
+            onRefresh = {},
+            onBankToggled = {},
+            onAccountSelected = { _, _, _ -> }
+        )
+    }
+}
+
+private fun sampleContentState(): AccountListState {
+    val caBankId = BankId("ca-paris")
+    val caAccounts = listOf(
+        sampleAccountItem(
+            id = "acc-1",
+            bankId = caBankId,
+            title = "Compte Courant",
+            amountMinor = 152_340
+        ),
+        sampleAccountItem(
+            id = "acc-2",
+            bankId = caBankId,
+            title = "Livret A",
+            amountMinor = 12_500
+        )
+    )
+    val otherBankId = BankId("bnpp")
+    val otherAccounts = listOf(
+        sampleAccountItem(
+            id = "acc-3",
+            bankId = otherBankId,
+            title = "Compte BNP",
+            amountMinor = 89_000
+        )
+    )
+    val caSection = BankSectionUi(
+        title = "Banques Crédit Agricole",
+        banks = listOf(
+            AccountCellUi(
+                id = caBankId,
+                title = "Crédit Agricole Paris",
+                isCreditAgricole = true,
+                isExpanded = true,
+                isLoadingAccounts = false,
+                accounts = caAccounts,
+                accountsError = null,
+                totalBalance = Money(164_840, "EUR", currencySymbolOverride = "€")
+            )
+        )
+    )
+    val otherSection = BankSectionUi(
+        title = "Autres banques",
+        banks = listOf(
+            AccountCellUi(
+                id = otherBankId,
+                title = "BNP Paribas",
+                isCreditAgricole = false,
+                isExpanded = false,
+                isLoadingAccounts = false,
+                accounts = otherAccounts,
+                accountsError = null,
+                totalBalance = Money(89_000, "EUR", currencySymbolOverride = "€")
+            )
+        )
+    )
+    return AccountListState(
+        hasLoaded = true,
+        sections = listOf(caSection, otherSection)
+    )
+}
+
+private fun sampleAccountItem(
+    id: String,
+    bankId: BankId,
+    title: String,
+    amountMinor: Long
+): AccountItemUi = AccountItemUi(
+    id = AccountId(id),
+    title = title,
+    account = Account(
+        id = AccountId(id),
+        bankId = bankId,
+        name = title,
+        balance = Money(amountMinor, "EUR", currencySymbolOverride = "€"),
+        kind = AccountKind.CHECKING
+    )
+)
 
 @Composable
 private fun EmptyBanks(

@@ -13,15 +13,16 @@ import creditagricole.composeapp.generated.resources.account_detail_load_operati
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import kotlin.math.abs
-import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.getString
+import kotlin.math.abs
 
 class AccountDetailViewModel(
     dispatcherProvider: DispatcherProvider,
     bankName: String,
     account: Account,
-    private val getOperationsForAccountUseCase: GetOperationsForAccountUseCase
+    private val getOperationsForAccountUseCase: GetOperationsForAccountUseCase,
+    private val strings: AccountDetailStrings = DefaultAccountDetailStrings()
 ) : BaseMVIViewModel<AccountDetailIntent, AccountDetailState, AccountDetailResult, AccountDetailEffect>(
     initialState = createInitialState(bankName, account),
     reducer = AccountDetailReducer,
@@ -85,7 +86,7 @@ class AccountDetailViewModel(
         }
         if (result.isFailure) {
             val throwable = result.exceptionOrNull()
-            val fallback = getString(Res.string.account_detail_load_operations_error)
+            val fallback = strings.loadOperationsError()
             val message = throwable?.message.orEmpty().ifEmpty { fallback }
             dispatch(AccountDetailIntent.InternalError(message))
         }
@@ -123,7 +124,7 @@ class AccountDetailViewModel(
             val cents = absolute % 100
             val centsString = cents.toString().padStart(2, '0')
             val sign = if (money.amountInMinor < 0) "-" else ""
-            return "$sign$units.$centsString ${money.currencyCode}"
+            return "$sign$units.$centsString ${money.displayCurrency}"
         }
 
         private fun Long.toFormattedDate(): String {
@@ -140,4 +141,14 @@ class AccountDetailViewModel(
 
         private const val UNKNOWN_DATE = "--/--/----"
     }
+}
+
+interface AccountDetailStrings {
+    suspend fun loadOperationsError(): String
+}
+
+class DefaultAccountDetailStrings : AccountDetailStrings {
+    @OptIn(ExperimentalResourceApi::class)
+    override suspend fun loadOperationsError(): String =
+        getString(Res.string.account_detail_load_operations_error)
 }
