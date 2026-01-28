@@ -49,3 +49,8 @@ data class AccountsResponseDto(
 data class OperationsResponseDto(
     @SerialName("operations") val operations: List<OperationDto>
 )
+
+@Serializable
+data class BanksSnapshotDto(
+    @SerialName("banks") val banks: List<BankDto> = emptyList()
+)
