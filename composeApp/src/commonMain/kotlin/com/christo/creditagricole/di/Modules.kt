@@ -17,8 +17,12 @@ import com.christo.creditagricole.domain.usecase.GetAccountsForBankUseCase
 import com.christo.creditagricole.domain.usecase.GetBanksUseCase
 import com.christo.creditagricole.domain.usecase.GetMockBanksUseCase
 import com.christo.creditagricole.domain.usecase.GetOperationsForAccountUseCase
+import com.christo.creditagricole.presentation.features.accounts.AccountListStrings
 import com.christo.creditagricole.presentation.features.accounts.AccountListViewModel
+import com.christo.creditagricole.presentation.features.accounts.DefaultAccountListStrings
+import com.christo.creditagricole.presentation.features.detail.AccountDetailStrings
 import com.christo.creditagricole.presentation.features.detail.AccountDetailViewModel
+import com.christo.creditagricole.presentation.features.detail.DefaultAccountDetailStrings
 import com.christo.creditagricole.presentation.features.detail.AccountSelectionStore
 import de.jensklingenberg.ktorfit.Ktorfit
 import org.koin.core.KoinApplication
@@ -60,17 +64,21 @@ private val presentationModule = module {
             dispatcherProvider = get(),
             getBanksUseCase = get(),
             getMockBanksUseCase = get(),
-            getAccountsForBankUseCase = get()
+            getAccountsForBankUseCase = get(),
+            strings = get()
         )
     }
+    factory<AccountListStrings> { DefaultAccountListStrings() }
     factory { (bankName: String, account: Account) ->
         AccountDetailViewModel(
             dispatcherProvider = get(),
             bankName = bankName,
             account = account,
-            getOperationsForAccountUseCase = get()
+            getOperationsForAccountUseCase = get(),
+            strings = get()
         )
     }
+    factory<AccountDetailStrings> { DefaultAccountDetailStrings() }
 }
 
 val sharedModules: List<Module> = listOf(

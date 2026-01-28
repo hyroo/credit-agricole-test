@@ -15,13 +15,15 @@ import creditagricole.composeapp.generated.resources.account_list_load_accounts_
 import creditagricole.composeapp.generated.resources.account_list_section_credit_agricole
 import creditagricole.composeapp.generated.resources.account_list_section_others
 import kotlinx.coroutines.CancellationException
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.getString
 
 class AccountListViewModel(
     dispatcherProvider: DispatcherProvider,
     private val getBanksUseCase: GetBanksUseCase,
     private val getMockBanksUseCase: GetMockBanksUseCase,
-    private val getAccountsForBankUseCase: GetAccountsForBankUseCase
+    private val getAccountsForBankUseCase: GetAccountsForBankUseCase,
+    private val strings: AccountListStrings = DefaultAccountListStrings()
 ) : BaseMVIViewModel<AccountListIntent, AccountListState, AccountListResult, BankListEffect>(
     initialState = AccountListState(),
     reducer = AccountListReducer,
@@ -81,10 +83,10 @@ class AccountListViewModel(
 
         dispatch(AccountListIntent.InternalLoading)
 
-        val emptyBanksMessage = getString(Res.string.account_list_empty_banks)
-        val genericErrorMessage = getString(Res.string.account_list_generic_error)
-        val creditAgricoleTitle = getString(Res.string.account_list_section_credit_agricole)
-        val othersTitle = getString(Res.string.account_list_section_others)
+        val emptyBanksMessage = strings.emptyBanks()
+        val genericErrorMessage = strings.genericError()
+        val creditAgricoleTitle = strings.sectionCreditAgricole()
+        val othersTitle = strings.sectionOthers()
 
         val currentSections = state.value.sections
         val fallbackSections = runCatching { getMockBanksUseCase() }
@@ -179,7 +181,7 @@ class AccountListViewModel(
 
         if (result.isFailure) {
             val throwable = result.exceptionOrNull()
-            val fallback = getString(Res.string.account_list_load_accounts_error)
+            val fallback = strings.loadAccountsError()
             val message = throwable?.message.orEmpty().ifEmpty { fallback }
             dispatch(
                 AccountListIntent.InternalAccountsError(
@@ -280,4 +282,34 @@ class AccountListViewModel(
                     }
             }
     }
+}
+
+interface AccountListStrings {
+    suspend fun emptyBanks(): String
+    suspend fun genericError(): String
+    suspend fun sectionCreditAgricole(): String
+    suspend fun sectionOthers(): String
+    suspend fun loadAccountsError(): String
+}
+
+class DefaultAccountListStrings : AccountListStrings {
+    @OptIn(ExperimentalResourceApi::class)
+    override suspend fun emptyBanks(): String =
+        getString(Res.string.account_list_empty_banks)
+
+    @OptIn(ExperimentalResourceApi::class)
+    override suspend fun genericError(): String =
+        getString(Res.string.account_list_generic_error)
+
+    @OptIn(ExperimentalResourceApi::class)
+    override suspend fun sectionCreditAgricole(): String =
+        getString(Res.string.account_list_section_credit_agricole)
+
+    @OptIn(ExperimentalResourceApi::class)
+    override suspend fun sectionOthers(): String =
+        getString(Res.string.account_list_section_others)
+
+    @OptIn(ExperimentalResourceApi::class)
+    override suspend fun loadAccountsError(): String =
+        getString(Res.string.account_list_load_accounts_error)
 }

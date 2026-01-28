@@ -6,7 +6,6 @@ data class Money(
     val amountInMinor: Long,
     val currencyCode: String,
     private val currencySymbolOverride: String? = null
-    // amount stored in minor units (e.g. cents) to avoid floating point issues
 ) {
     init {
         require(currencyCode.length == 3 && currencyCode.all { it.isLetter() }) {
